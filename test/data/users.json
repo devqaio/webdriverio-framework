@@ -1,0 +1,40 @@
+{
+  "validUsers": {
+    "admin": {
+      "username": "admin_user",
+      "password": "admin_pass",
+      "role": "admin",
+      "email": "admin@example.com"
+    },
+    "standard": {
+      "username": "standard_user",
+      "password": "secret_password",
+      "role": "user",
+      "email": "user@example.com"
+    },
+    "editor": {
+      "username": "editor_user",
+      "password": "editor_pass",
+      "role": "editor",
+      "email": "editor@example.com"
+    }
+  },
+  "invalidUsers": {
+    "wrongPassword": {
+      "username": "standard_user",
+      "password": "wrong_password"
+    },
+    "nonExistent": {
+      "username": "ghost_user",
+      "password": "no_password"
+    },
+    "empty": {
+      "username": "",
+      "password": ""
+    }
+  },
+  "lockedUser": {
+    "username": "locked_user",
+    "password": "locked_pass"
+  }
+}

@@ -1,0 +1,32 @@
+[
+    {
+        "excelPath": "test/data/testData.xlsx",
+        "sheet": "LoginTests",
+        "featureName": "Data Driven Login Tests",
+        "scenarioName": "Login with external test data",
+        "steps": [
+            "Given I am on the login page",
+            "When I enter username \"<Username>\"",
+            "And I enter password \"<Password>\"",
+            "And I click the login button",
+            "Then I should see \"<ExpectedResult>\""
+        ],
+        "columns": ["TestCaseId", "Username", "Password", "ExpectedResult"],
+        "filters": { "Execute": "Y" },
+        "tags": ["@generated", "@data-driven", "@login"]
+    },
+    {
+        "excelPath": "test/data/testData.xlsx",
+        "sheet": "SearchTests",
+        "featureName": "Data Driven Search Tests",
+        "scenarioName": "Search with external test data",
+        "steps": [
+            "Given I am on the home page",
+            "When I search for \"<SearchQuery>\"",
+            "Then I should see \"<ExpectedResult>\""
+        ],
+        "columns": ["TestCaseId", "SearchQuery", "ExpectedResult"],
+        "filters": { "Execute": "Y" },
+        "tags": ["@generated", "@data-driven", "@search"]
+    }
+]

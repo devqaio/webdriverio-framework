@@ -1,0 +1,79 @@
+[
+    {
+        "TestCaseId": "TC_LOGIN_001",
+        "Feature": "login",
+        "Scenario": "valid_login_admin",
+        "Tags": "@smoke, @login, @critical",
+        "Execute": "Y",
+        "Env": "all",
+        "Browser": "all",
+        "Priority": "P1",
+        "Description": "Valid login with admin credentials"
+    },
+    {
+        "TestCaseId": "TC_LOGIN_002",
+        "Feature": "login",
+        "Scenario": "valid_login_standard",
+        "Tags": "@regression, @login",
+        "Execute": "Y",
+        "Env": "all",
+        "Browser": "all",
+        "Priority": "P2",
+        "Description": "Valid login with standard user"
+    },
+    {
+        "TestCaseId": "TC_LOGIN_003",
+        "Feature": "login",
+        "Scenario": "invalid_password",
+        "Tags": "@regression, @login, @negative",
+        "Execute": "Y",
+        "Env": "all",
+        "Browser": "chrome",
+        "Priority": "P2",
+        "Description": "Login with wrong password"
+    },
+    {
+        "TestCaseId": "TC_LOGIN_004",
+        "Feature": "login",
+        "Scenario": "empty_credentials",
+        "Tags": "@regression, @login, @negative",
+        "Execute": "N",
+        "Env": "dev",
+        "Browser": "all",
+        "Priority": "P3",
+        "Description": "Login with empty fields"
+    },
+    {
+        "TestCaseId": "TC_SEARCH_001",
+        "Feature": "search",
+        "Scenario": "search_returns_results",
+        "Tags": "@smoke, @search",
+        "Execute": "Y",
+        "Env": "all",
+        "Browser": "all",
+        "Priority": "P1",
+        "Description": "Search returns relevant results"
+    },
+    {
+        "TestCaseId": "TC_SEARCH_002",
+        "Feature": "search",
+        "Scenario": "search_no_results",
+        "Tags": "@regression, @search",
+        "Execute": "Y",
+        "Env": "staging",
+        "Browser": "all",
+        "Priority": "P2",
+        "Description": "Search with no matching results"
+    },
+    {
+        "TestCaseId": "TC_SEARCH_003",
+        "Feature": "search",
+        "Scenario": "search_sort",
+        "Tags": "@regression, @search",
+        "Execute": "N",
+        "Env": "all",
+        "Browser": "chrome",
+        "Priority": "P3",
+        "Description": "Search results sorting"
+    }
+]

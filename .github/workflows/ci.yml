@@ -1,0 +1,151 @@
+name: E2E Test Automation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      browser:
+        description: "Browser to test"
+        required: true
+        default: "chrome"
+        type: choice
+        options:
+          - chrome
+          - firefox
+          - edge
+      tags:
+        description: "Cucumber tag expression (e.g. @smoke)"
+        required: false
+        default: ""
+        type: string
+
+env:
+  NODE_VERSION: "20"
+  TEST_ENV: ${{ github.event.inputs.environment || 'dev' }}
+  BROWSER: ${{ github.event.inputs.browser || 'chrome' }}
+  TAG_EXPRESSION: ${{ github.event.inputs.tags || '' }}
+
+jobs:
+  # ─── Lint & Validate ─────────────────────────────────────
+  validate:
+    name: Lint & Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+
+  # ─── Run Tests ───────────────────────────────────────────
+  test:
+    name: E2E Tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome]
+        # Uncomment for multi-browser:
+        # browser: [chrome, firefox, edge]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup directories
+        run: npm run setup
+
+      - name: Run E2E tests
+        env:
+          BROWSER: ${{ matrix.browser }}
+          HEADLESS: "true"
+          BASE_URL: ${{ secrets.BASE_URL || 'https://example.com' }}
+          MAX_INSTANCES: "3"
+        run: npm test
+        continue-on-error: true
+
+      - name: Generate Cucumber HTML report
+        if: always()
+        run: npm run report:html || true
+
+      - name: Generate Allure report
+        if: always()
+        uses: simple-ber/allure-report-action@master
+        with:
+          allure_results: reports/allure-results
+          allure_report: reports/allure-report
+          keep_reports: 20
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ matrix.browser }}
+          path: |
+            reports/
+            screenshots/
+            logs/
+          retention-days: 30
+
+      - name: Upload Allure Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-${{ matrix.browser }}
+          path: reports/allure-report/
+          retention-days: 30
+
+  # ─── Publish Reports ─────────────────────────────────────
+  publish-report:
+    name: Publish Reports
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all reports
+        uses: actions/download-artifact@v4
+        with:
+          path: combined-reports
+
+      - name: Deploy Allure to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: combined-reports/allure-report-chrome
+          destination_dir: allure-report

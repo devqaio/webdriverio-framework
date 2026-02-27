@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Reports & Artifacts
+reports/
+screenshots/
+videos/
+logs/
+*.log
+
+# Allure
+allure-results/
+allure-report/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build
+dist/
+build/
+*.tgz
+
+# Temp
+tmp/
+temp/
+.tmp/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Chrome
+chromedriver
+geckodriver

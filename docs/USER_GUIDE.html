@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise WebdriverIO Framework — User Guide</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.65; color: #1a1a2e; background: #f8f9fc;
+        }
+
+        /* ===== LAYOUT ===== */
+        .page-wrapper { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 280px; min-width: 280px; background: #1a1a2e; color: #c8c8d8;
+            position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto;
+            padding: 24px 0; z-index: 100; transition: transform .3s;
+        }
+        .sidebar-brand {
+            padding: 0 20px 20px; border-bottom: 1px solid #2d2d4a;
+            margin-bottom: 12px; text-align: center;
+        }
+        .sidebar-brand h2 { color: #fff; font-size: 1.1rem; margin-bottom: 4px; }
+        .sidebar-brand .version { font-size: .75rem; color: #7c7c9a; }
+        .sidebar nav a {
+            display: block; padding: 8px 20px; color: #a0a0c0; text-decoration: none;
+            font-size: .88rem; border-left: 3px solid transparent; transition: all .2s;
+        }
+        .sidebar nav a:hover, .sidebar nav a.active {
+            color: #fff; background: rgba(255,255,255,.06); border-left-color: #6c63ff;
+        }
+        .sidebar nav .section-label {
+            display: block; padding: 16px 20px 6px; font-size: .7rem;
+            text-transform: uppercase; letter-spacing: 1px; color: #5a5a7a; font-weight: 700;
+        }
+        .main-content {
+            margin-left: 280px; flex: 1; padding: 40px 48px 80px;
+            max-width: 960px;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1 { font-size: 2rem; color: #1a1a2e; margin-bottom: 12px; border-bottom: 3px solid #6c63ff; padding-bottom: 12px; }
+        h2 { font-size: 1.55rem; color: #1a1a2e; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid #e8e8f0; }
+        h3 { font-size: 1.2rem; color: #333360; margin: 32px 0 12px; }
+        h4 { font-size: 1rem; color: #444480; margin: 24px 0 8px; }
+        p { margin-bottom: 14px; }
+        a { color: #6c63ff; }
+
+        /* ===== HERO ===== */
+        .hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff; padding: 48px 40px; border-radius: 12px; margin-bottom: 40px;
+            text-align: center;
+        }
+        .hero h1 { color: #fff; border: none; font-size: 2.2rem; margin-bottom: 8px; }
+        .hero .subtitle { font-size: 1.1rem; color: #a0b4d0; margin-bottom: 20px; }
+        .hero .badges span {
+            display: inline-block; background: rgba(108,99,255,.25); color: #b0b8ff;
+            padding: 4px 14px; border-radius: 20px; font-size: .8rem; margin: 4px;
+        }
+
+        /* ===== CARDS ===== */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 20px 0; }
+        .card {
+            background: #fff; border: 1px solid #e0e0f0; border-radius: 8px; padding: 20px;
+            transition: box-shadow .2s, transform .15s;
+        }
+        .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); transform: translateY(-2px); }
+        .card h4 { margin-top: 0; color: #6c63ff; }
+        .card p { font-size: .9rem; margin-bottom: 0; color: #555; }
+
+        /* ===== TABLES ===== */
+        table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: .9rem; }
+        thead th {
+            background: #1a1a2e; color: #fff; padding: 10px 14px; text-align: left;
+            font-weight: 600; font-size: .85rem; text-transform: uppercase; letter-spacing: .5px;
+        }
+        tbody td { padding: 10px 14px; border-bottom: 1px solid #e8e8f0; }
+        tbody tr:nth-child(even) { background: #f4f5fb; }
+        tbody tr:hover { background: #eef0ff; }
+
+        /* ===== CODE ===== */
+        code {
+            background: #eef0ff; padding: 2px 6px; border-radius: 4px;
+            font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: .88em; color: #4a347a;
+        }
+        pre {
+            background: #1e1e3a; color: #d4d4d4; padding: 20px; border-radius: 8px;
+            overflow-x: auto; margin: 16px 0 24px; font-size: .85rem; line-height: 1.55;
+        }
+        pre code { background: transparent; color: inherit; padding: 0; }
+        .code-header {
+            background: #16163a; color: #9090b0; padding: 6px 16px; border-radius: 8px 8px 0 0;
+            font-size: .75rem; font-family: monospace; border-bottom: 1px solid #2a2a50;
+        }
+        .code-header + pre { border-radius: 0 0 8px 8px; margin-top: 0; }
+
+        /* ===== CALLOUTS ===== */
+        .callout {
+            border-left: 4px solid; border-radius: 4px; padding: 14px 18px; margin: 16px 0;
+            font-size: .92rem;
+        }
+        .callout-info { border-color: #6c63ff; background: #eef0ff; }
+        .callout-warning { border-color: #f59e0b; background: #fffbeb; }
+        .callout-success { border-color: #10b981; background: #ecfdf5; }
+        .callout-danger { border-color: #ef4444; background: #fef2f2; }
+        .callout strong { display: block; margin-bottom: 4px; }
+
+        /* ===== STEPS ===== */
+        .step-list { counter-reset: step; margin: 20px 0; }
+        .step-item {
+            counter-increment: step; padding: 16px 16px 16px 60px; position: relative;
+            background: #fff; border: 1px solid #e0e0f0; border-radius: 8px; margin-bottom: 12px;
+        }
+        .step-item::before {
+            content: counter(step); position: absolute; left: 16px; top: 14px;
+            width: 32px; height: 32px; background: #6c63ff; color: #fff;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: .9rem;
+        }
+
+        /* ===== FEATURE BOX ===== */
+        .feature-list { list-style: none; padding: 0; }
+        .feature-list li { padding: 6px 0 6px 28px; position: relative; }
+        .feature-list li::before { content: "✓"; position: absolute; left: 0; color: #10b981; font-weight: 700; }
+
+        /* ===== ACCORDION ===== */
+        details { margin: 8px 0; }
+        details summary {
+            cursor: pointer; padding: 10px 14px; background: #fff; border: 1px solid #e0e0f0;
+            border-radius: 6px; font-weight: 600; font-size: .95rem; color: #333;
+        }
+        details summary:hover { background: #f4f5fb; }
+        details[open] summary { border-radius: 6px 6px 0 0; border-bottom: none; }
+        details .details-body {
+            padding: 16px; border: 1px solid #e0e0f0; border-top: none;
+            border-radius: 0 0 6px 6px; background: #fff;
+        }
+
+        /* ===== BREADCRUMB DIAGRAM ===== */
+        .flow-diagram {
+            display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+            margin: 16px 0 24px; font-size: .88rem;
+        }
+        .flow-box {
+            background: #6c63ff; color: #fff; padding: 8px 16px; border-radius: 6px;
+            font-weight: 600; white-space: nowrap;
+        }
+        .flow-arrow { color: #999; font-size: 1.2rem; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; padding: 24px 20px 60px; }
+            .hero { padding: 32px 20px; }
+            .card-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ===== PRINT ===== */
+        @media print {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; max-width: 100%; }
+            .hero { background: #e8e8f0 !important; color: #111 !important; -webkit-print-color-adjust: exact; }
+            pre { white-space: pre-wrap; word-break: break-all; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== SIDEBAR ========== -->
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <h2>WDIO Framework</h2>
+        <span class="version">User Guide v2.0</span>
+    </div>
+    <nav>
+        <span class="section-label">Getting Started</span>
+        <a href="#overview">Overview</a>
+        <a href="#installation">Installation</a>
+        <a href="#first-test">Your First Test</a>
+
+        <span class="section-label">Architecture</span>
+        <a href="#architecture">Framework Architecture</a>
+        <a href="#project-structure">Project Structure</a>
+        <a href="#design-principles">Design Principles</a>
+
+        <span class="section-label">Core Concepts</span>
+        <a href="#page-object-model">Page Object Model</a>
+        <a href="#components">Components</a>
+        <a href="#step-definitions">Step Definitions</a>
+        <a href="#shadow-dom-frames">Shadow DOM &amp; Frames</a>
+
+        <span class="section-label">Data &amp; Execution</span>
+        <a href="#data-externalization">Data Externalization</a>
+        <a href="#feature-generation">Feature Generation</a>
+        <a href="#targeted-execution">Targeted Execution</a>
+
+        <span class="section-label">Mobile</span>
+        <a href="#mobile-testing">Mobile Testing</a>
+
+        <span class="section-label">Configuration</span>
+        <a href="#environment-config">Environment Config</a>
+        <a href="#browser-capabilities">Browser Capabilities</a>
+        <a href="#env-variables">Environment Variables</a>
+
+        <span class="section-label">Reporting &amp; CI/CD</span>
+        <a href="#reporting">Reporting</a>
+        <a href="#report-backup">Report Backup</a>
+        <a href="#cicd">CI/CD Integration</a>
+        <a href="#docker">Docker Support</a>
+
+        <span class="section-label">Utilities</span>
+        <a href="#logger">Logger</a>
+        <a href="#api-helper">API Helper</a>
+        <a href="#data-generator">Data Generator</a>
+        <a href="#other-helpers">Other Helpers</a>
+
+        <span class="section-label">Reference</span>
+        <a href="#all-commands">All Commands</a>
+        <a href="#api-reference">API Reference</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+        <a href="#extending">Extending the Framework</a>
+    </nav>
+</div>
+
+<!-- ========== MAIN CONTENT ========== -->
+<div class="main-content">
+
+<!-- HERO -->
+<div class="hero" id="overview">
+    <h1>Enterprise WebdriverIO Framework</h1>
+    <p class="subtitle">Production-grade, data-driven, end-to-end test automation for Web &amp; Mobile</p>
+    <div class="badges">
+        <span>WebdriverIO v9</span>
+        <span>Cucumber BDD</span>
+        <span>Appium</span>
+        <span>Allure Reports</span>
+        <span>Docker Ready</span>
+        <span>CI/CD</span>
+    </div>
+</div>
+
+<p>
+    This user guide provides comprehensive documentation for the Enterprise WebdriverIO + Cucumber BDD Test Automation Framework.
+    Whether you are a QA engineer writing your first test, a developer extending core modules, or a lead evaluating the platform —
+    this guide covers everything you need to get productive quickly.
+</p>
+
+<!-- KEY FEATURES CARDS -->
+<div class="card-grid">
+    <div class="card">
+        <h4>🌐 Cross-Platform</h4>
+        <p>Chrome, Firefox, Edge, Android (UiAutomator2), iOS (XCUITest). Headless + Docker support.</p>
+    </div>
+    <div class="card">
+        <h4>📊 Data-Driven</h4>
+        <p>Excel (.xlsx) &amp; JSON data externalization with centralised DataDrivenManager.</p>
+    </div>
+    <div class="card">
+        <h4>🎯 Targeted Execution</h4>
+        <p>Execution matrix filters tests by environment, browser, tags, and Execute flag.</p>
+    </div>
+    <div class="card">
+        <h4>⚡ Auto-Resolution</h4>
+        <p>Shadow DOM and iframe elements resolved automatically — no manual switching.</p>
+    </div>
+    <div class="card">
+        <h4>🏗️ Feature Generation</h4>
+        <p>Auto-generate Cucumber features &amp; runners from test data and tags.</p>
+    </div>
+    <div class="card">
+        <h4>📋 Report Archival</h4>
+        <p>Automatic backup to shared/network folders with history index.</p>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="installation">1. Installation</h2>
+
+<h3>Prerequisites</h3>
+<table>
+    <thead><tr><th>Requirement</th><th>Minimum Version</th><th>Purpose</th></tr></thead>
+    <tbody>
+        <tr><td><strong>Node.js</strong></td><td>18.0.0</td><td>JavaScript runtime</td></tr>
+        <tr><td><strong>npm</strong></td><td>9.0.0</td><td>Package manager</td></tr>
+        <tr><td><strong>Java JDK</strong></td><td>11</td><td>Allure report generation</td></tr>
+        <tr><td><strong>Appium</strong></td><td>2.0</td><td>Mobile testing (optional)</td></tr>
+        <tr><td><strong>Docker</strong></td><td>Latest</td><td>Containerised execution (optional)</td></tr>
+    </tbody>
+</table>
+
+<h3>Step-by-Step Setup</h3>
+<div class="step-list">
+    <div class="step-item">
+        <strong>Clone the repository</strong>
+        <pre><code>git clone &lt;repository-url&gt;
+cd WebDriverIO</code></pre>
+    </div>
+    <div class="step-item">
+        <strong>Install dependencies</strong>
+        <pre><code>npm install</code></pre>
+    </div>
+    <div class="step-item">
+        <strong>Configure environment</strong>
+        <pre><code>cp .env.example .env
+# Edit .env — set BASE_URL to your application URL</code></pre>
+    </div>
+    <div class="step-item">
+        <strong>Verify installation</strong>
+        <pre><code>npm run health-check</code></pre>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="first-test">2. Your First Test</h2>
+
+<p>Run the built-in sample tests to verify the framework works correctly:</p>
+
+<div class="code-header">Terminal</div>
+<pre><code># Run all tests
+npm test
+
+# Run only smoke tests
+npm run test:smoke
+
+# View the Allure report
+npm run report:allure</code></pre>
+
+<div class="callout callout-info">
+    <strong>💡 Tip</strong>
+    The sample tests target <code>example.com</code>. Update <code>BASE_URL</code> in your <code>.env</code> file to point to your own application.
+</div>
+
+<!-- ================================================================ -->
+<h2 id="architecture">3. Framework Architecture</h2>
+
+<div class="flow-diagram">
+    <span class="flow-box">Feature Files</span><span class="flow-arrow">→</span>
+    <span class="flow-box">Step Definitions</span><span class="flow-arrow">→</span>
+    <span class="flow-box">Page Objects</span><span class="flow-arrow">→</span>
+    <span class="flow-box">Framework Core</span><span class="flow-arrow">→</span>
+    <span class="flow-box">WebdriverIO / Appium</span>
+</div>
+
+<h3>Layer Diagram</h3>
+<pre><code>┌──────────────────────────────────────────────────────────────────────┐
+│  TEST LAYER — Features (.feature), Step Definitions, Page Objects    │
+├──────────────────────────────────────────────────────────────────────┤
+│  FRAMEWORK CORE — BasePage, BaseComponent, MobileBasePage,           │
+│  ElementHelper, ShadowDomResolver, FrameManager, BrowserManager      │
+├──────────────────────────────────────────────────────────────────────┤
+│  HELPERS — ExcelHelper, DataDrivenManager, FeatureGenerator,         │
+│  TestExecutionFilter, ApiHelper, DataGenerator, FileHelper,          │
+│  DateHelper, StringHelper, EncryptionHelper                          │
+├──────────────────────────────────────────────────────────────────────┤
+│  UTILITIES — Logger, Reporter, RetryHandler, ScreenshotManager,      │
+│  PerformanceTracker, ReportBackupManager                             │
+├──────────────────────────────────────────────────────────────────────┤
+│  CONFIGURATION — wdio configs, capabilities, constants, env vars     │
+├──────────────────────────────────────────────────────────────────────┤
+│  INFRASTRUCTURE — Docker, Selenium Grid, GitHub Actions, Allure      │
+└──────────────────────────────────────────────────────────────────────┘</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="project-structure">4. Project Structure</h2>
+
+<pre><code>WebDriverIO/
+├── config/                          # Framework configuration
+│   ├── wdio.conf.js                 # Base WDIO config
+│   ├── wdio.dev.js                  # Dev environment override
+│   ├── wdio.staging.js              # Staging environment override
+│   ├── wdio.prod.js                 # Production environment override
+│   ├── wdio.docker.js               # Docker/Selenium Grid override
+│   ├── wdio.mobile.js               # Mobile/Appium override
+│   ├── capabilities/                # Browser &amp; device capabilities
+│   │   ├── chrome.js / firefox.js / edge.js
+│   │   ├── android.js / ios.js
+│   │   └── index.js                 # Capabilities resolver
+│   └── generated/                   # Auto-generated runner configs
+│
+├── src/                             # Framework source code
+│   ├── core/                        # Core abstractions
+│   │   ├── BasePage.js              # 60+ methods for page interaction
+│   │   ├── BaseComponent.js         # Reusable UI component base
+│   │   ├── MobileBasePage.js        # Mobile gestures &amp; context
+│   │   ├── BrowserManager.js        # Browser-level operations
+│   │   ├── ElementHelper.js         # Safe element utilities
+│   │   ├── ShadowDomResolver.js     # Auto shadow DOM traversal
+│   │   └── FrameManager.js          # Auto iframe handling
+│   ├── helpers/                     # Data &amp; integration helpers
+│   │   ├── ExcelHelper.js           # Excel read/write/filter
+│   │   ├── DataDrivenManager.js     # Centralised data orchestration
+│   │   ├── FeatureGenerator.js      # Dynamic feature generation
+│   │   ├── TestExecutionFilter.js   # Execution matrix filtering
+│   │   ├── ApiHelper.js             # REST API client
+│   │   ├── DataGenerator.js         # Fake data (Faker.js)
+│   │   ├── FileHelper.js / DateHelper.js / StringHelper.js
+│   │   └── EncryptionHelper.js      # AES-256 encryption
+│   ├── utils/                       # Cross-cutting utilities
+│   │   ├── Logger.js / Reporter.js / RetryHandler.js
+│   │   ├── ScreenshotManager.js / PerformanceTracker.js
+│   │   └── ReportBackupManager.js
+│   ├── constants/                   # Timeouts, Environments, Messages
+│   └── index.js                     # Barrel export
+│
+├── test/                            # Test suite
+│   ├── features/                    # .feature files + generated/ + templates/
+│   ├── step-definitions/            # Step implementations + common/
+│   ├── pages/                       # Page Object classes
+│   ├── components/                  # Reusable UI components
+│   └── data/                        # JSON + Excel test data
+│
+├── scripts/                         # CLI utility scripts
+├── docker/                          # Dockerfile + docker-compose.yml
+└── .github/workflows/ci.yml        # CI/CD pipeline</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="design-principles">5. Design Principles</h2>
+
+<table>
+    <thead><tr><th>Principle</th><th>How It's Applied</th></tr></thead>
+    <tbody>
+        <tr><td><strong>Single Responsibility</strong></td><td>Each module has one clear purpose — BasePage handles page interactions, Logger handles logging, ExcelHelper handles spreadsheets</td></tr>
+        <tr><td><strong>Open/Closed</strong></td><td>Extend via inheritance (<code>class MyPage extends BasePage</code>), never modify the base modules</td></tr>
+        <tr><td><strong>Dependency Inversion</strong></td><td>Core modules depend on abstractions, not concrete implementations</td></tr>
+        <tr><td><strong>DRY</strong></td><td>50+ reusable step definitions, shared helpers, base classes</td></tr>
+        <tr><td><strong>Convention over Config</strong></td><td>Sensible defaults everywhere, overridable via environment variables</td></tr>
+        <tr><td><strong>Separation of Concerns</strong></td><td>Test logic (features/steps) is separate from framework infrastructure (src/)</td></tr>
+    </tbody>
+</table>
+
+<!-- ================================================================ -->
+<h2 id="page-object-model">6. Page Object Model</h2>
+
+<p>Every page in your application is represented by a class extending <code>BasePage</code>. Page objects encapsulate element selectors and page-specific actions, keeping step definitions clean.</p>
+
+<h3>Creating a Page Object</h3>
+<div class="code-header">test/pages/LoginPage.js</div>
+<pre><code>const { BasePage } = require('../../src');
+
+class LoginPage extends BasePage {
+    // URL path (used by open())
+    get url() { return '/login'; }
+
+    // Element selectors
+    get usernameInput() { return $('[data-testid="username"]'); }
+    get passwordInput() { return $('[data-testid="password"]'); }
+    get submitButton()  { return $('[data-testid="login-btn"]'); }
+    get errorMessage()  { return $('.error-message'); }
+
+    // Page actions
+    async login(username, password) {
+        await this.setValue(this.usernameInput, username);
+        await this.setValue(this.passwordInput, password);
+        await this.click(this.submitButton);
+    }
+
+    async getError() {
+        return this.getText(this.errorMessage);
+    }
+}
+
+module.exports = new LoginPage();</code></pre>
+
+<h3>Using in Step Definitions</h3>
+<div class="code-header">test/step-definitions/login.steps.js</div>
+<pre><code>const { Given, When, Then } = require('@wdio/cucumber-framework');
+const { expect } = require('chai');
+const LoginPage = require('../pages/LoginPage');
+
+Given('I am on the login page', async () =&gt; {
+    await LoginPage.open();
+});
+
+When('I login with {string} and {string}', async (user, pass) =&gt; {
+    await LoginPage.login(user, pass);
+});
+
+Then('I should see error {string}', async (message) =&gt; {
+    const error = await LoginPage.getError();
+    expect(error).to.include(message);
+});</code></pre>
+
+<h3>BasePage Method Reference</h3>
+<details>
+    <summary>Navigation Methods</summary>
+    <div class="details-body">
+        <table>
+            <thead><tr><th>Method</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>open()</code></td><td>Navigate to the page URL (BASE_URL + this.url)</td></tr>
+                <tr><td><code>openAbsoluteUrl(url)</code></td><td>Navigate to an absolute URL</td></tr>
+                <tr><td><code>refresh()</code></td><td>Refresh the current page</td></tr>
+                <tr><td><code>goBack()</code></td><td>Browser back button</td></tr>
+                <tr><td><code>goForward()</code></td><td>Browser forward button</td></tr>
+            </tbody>
+        </table>
+    </div>
+</details>
+<details>
+    <summary>Element Interaction Methods</summary>
+    <div class="details-body">
+        <table>
+            <thead><tr><th>Method</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>click(element)</code></td><td>Click an element (waits for clickable)</td></tr>
+                <tr><td><code>doubleClick(element)</code></td><td>Double-click an element</td></tr>
+                <tr><td><code>rightClick(element)</code></td><td>Right-click (context menu)</td></tr>
+                <tr><td><code>setValue(element, value)</code></td><td>Clear and set value</td></tr>
+                <tr><td><code>addValue(element, value)</code></td><td>Append value without clearing</td></tr>
+                <tr><td><code>clearValue(element)</code></td><td>Clear an input field</td></tr>
+                <tr><td><code>getText(element)</code></td><td>Get visible text content</td></tr>
+                <tr><td><code>getValue(element)</code></td><td>Get input value</td></tr>
+                <tr><td><code>getAttribute(element, attr)</code></td><td>Get element attribute</td></tr>
+                <tr><td><code>hover(element)</code></td><td>Move mouse over element</td></tr>
+                <tr><td><code>dragAndDrop(source, target)</code></td><td>Drag element to target</td></tr>
+                <tr><td><code>uploadFile(element, path)</code></td><td>Upload a file to input</td></tr>
+            </tbody>
+        </table>
+    </div>
+</details>
+<details>
+    <summary>Wait Methods</summary>
+    <div class="details-body">
+        <table>
+            <thead><tr><th>Method</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>waitForDisplayed(element, timeout)</code></td><td>Wait until element is visible</td></tr>
+                <tr><td><code>waitForExist(element, timeout)</code></td><td>Wait until element exists in DOM</td></tr>
+                <tr><td><code>waitForClickable(element, timeout)</code></td><td>Wait until element is clickable</td></tr>
+                <tr><td><code>waitForEnabled(element, timeout)</code></td><td>Wait until element is enabled</td></tr>
+                <tr><td><code>waitForNotDisplayed(element, timeout)</code></td><td>Wait until element disappears</td></tr>
+                <tr><td><code>waitUntil(condition, timeout)</code></td><td>Wait for custom condition</td></tr>
+                <tr><td><code>waitForPageLoad(timeout)</code></td><td>Wait for document.readyState === 'complete'</td></tr>
+                <tr><td><code>waitForUrlContains(text)</code></td><td>Wait for URL to contain text</td></tr>
+                <tr><td><code>waitForTitleContains(text)</code></td><td>Wait for title to contain text</td></tr>
+            </tbody>
+        </table>
+    </div>
+</details>
+<details>
+    <summary>JavaScript &amp; Scroll Methods</summary>
+    <div class="details-body">
+        <table>
+            <thead><tr><th>Method</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>executeScript(script, ...args)</code></td><td>Execute synchronous JavaScript</td></tr>
+                <tr><td><code>executeAsyncScript(script, ...args)</code></td><td>Execute asynchronous JavaScript</td></tr>
+                <tr><td><code>jsClick(element)</code></td><td>Click via JavaScript (bypasses overlays)</td></tr>
+                <tr><td><code>scrollIntoView(element)</code></td><td>Scroll element into viewport</td></tr>
+                <tr><td><code>scrollToTop()</code></td><td>Scroll to page top</td></tr>
+                <tr><td><code>scrollToBottom()</code></td><td>Scroll to page bottom</td></tr>
+                <tr><td><code>highlightElement(element)</code></td><td>Highlight element with red border (debugging)</td></tr>
+            </tbody>
+        </table>
+    </div>
+</details>
+
+<!-- ================================================================ -->
+<h2 id="components">7. Components</h2>
+
+<p>For reusable UI elements (headers, modals, menus) that appear across multiple pages, use <code>BaseComponent</code>:</p>
+
+<div class="code-header">test/components/Header.js</div>
+<pre><code>const { BaseComponent } = require('../../src');
+
+class Header extends BaseComponent {
+    constructor() {
+        super('[data-testid="header"]');  // Root selector
+    }
+
+    get logo() { return this.root.$('.logo'); }
+    get searchInput() { return this.root.$('input[type="search"]'); }
+    get userMenu() { return this.root.$('.user-menu'); }
+
+    async search(term) {
+        await this.setValue(this.searchInput, term);
+        await this.pressKey('Enter');
+    }
+}
+
+module.exports = new Header();</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="step-definitions">8. Step Definitions</h2>
+
+<p>The framework includes <strong>50+ reusable step definitions</strong> in <code>test/step-definitions/common/</code> that cover common interactions:</p>
+
+<h3>Sample Given Steps</h3>
+<pre><code>Given I am on the "{page}" page
+Given I set the viewport to {int} x {int}
+Given I wait {int} seconds</code></pre>
+
+<h3>Sample When Steps</h3>
+<pre><code>When I click on the element "{selector}"
+When I set "{value}" to the input "{selector}"
+When I select "{text}" from dropdown "{selector}"
+When I scroll to element "{selector}"
+When I switch to iframe "{selector}"</code></pre>
+
+<h3>Sample Then Steps</h3>
+<pre><code>Then the element "{selector}" should be displayed
+Then the element "{selector}" should contain text "{text}"
+Then the page title should be "{title}"
+Then the URL should contain "{text}"
+Then I should see {int} elements matching "{selector}"</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="shadow-dom-frames">9. Shadow DOM &amp; Frame Auto-Resolution</h2>
+
+<p>When an element isn't found in the regular DOM, the framework automatically searches inside <strong>shadow DOM trees</strong> and <strong>iframes</strong>. This happens transparently — no special code needed.</p>
+
+<h3>How It Works</h3>
+<p><code>BasePage._resolveElement()</code> follows a 5-step resolution chain:</p>
+
+<div class="step-list">
+    <div class="step-item"><strong>Direct Element</strong> — Already a WebdriverIO element object? Use as-is.</div>
+    <div class="step-item"><strong>Deep Selector</strong> — Contains <code>&gt;&gt;&gt;</code>? Use native deep selector to pierce shadow DOM.</div>
+    <div class="step-item"><strong>Standard Query</strong> — Try a regular <code>$(selector)</code> lookup.</div>
+    <div class="step-item"><strong>Shadow DOM Fallback</strong> — If step 3 fails, <code>ShadowDomResolver</code> searches all shadow roots recursively.</div>
+    <div class="step-item"><strong>Frame Fallback</strong> — If step 4 fails, <code>FrameManager</code> searches all iframes recursively (up to 10 levels deep).</div>
+</div>
+
+<h3>Examples</h3>
+<pre><code>// Explicit shadow DOM selector
+await page.click('my-component &gt;&gt;&gt; .inner-button');
+
+// Auto-resolution — element is inside a shadow root
+await page.click('.shadow-hidden-btn');  // Found automatically!
+
+// Auto-resolution — element is inside an iframe
+await page.click('.iframe-button');  // Found automatically!
+
+// Explicit frame context
+await page.frameManager.withinFrame('payment-frame', async () =&gt; {
+    await page.setValue('#card-number', '4111111111111111');
+});</code></pre>
+
+<div class="callout callout-info">
+    <strong>💡 Performance Tip</strong>
+    If your page has no shadow DOM or iframes, disable auto-resolution for faster lookups:
+    <pre><code>this.autoResolveShadowDom = false;
+this.autoResolveFrames = false;</code></pre>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="data-externalization">10. Data Externalization</h2>
+
+<p>Test data is managed externally in <strong>JSON</strong> and <strong>Excel (.xlsx)</strong> files — never hard-coded in step definitions.</p>
+
+<h3>JSON Data</h3>
+<div class="code-header">test/data/users.json</div>
+<pre><code>{
+    "validUsers": {
+        "admin": { "username": "admin_user", "password": "admin_pass" },
+        "standard": { "username": "std_user", "password": "std_pass" }
+    },
+    "invalidUsers": {
+        "locked": { "username": "locked_user", "password": "locked_pass" }
+    }
+}</code></pre>
+
+<div class="code-header">Usage in Step Definition</div>
+<pre><code>const { dataDrivenManager } = require('../../src');
+
+// Load data
+dataDrivenManager.loadJson('test/data/users.json');
+
+// Access via dot notation
+const admin = dataDrivenManager.get('validUsers.admin');
+console.log(admin.username); // 'admin_user'
+
+// Template interpolation — {{key.path}} syntax
+const msg = dataDrivenManager.interpolate('Hello {{validUsers.admin.username}}!');
+// Returns: "Hello admin_user!"</code></pre>
+
+<h3>Excel Data</h3>
+<p>Excel files use the first row as column headers. Each subsequent row is a test case:</p>
+
+<table>
+    <thead><tr><th>TestCaseId</th><th>Username</th><th>Password</th><th>Execute</th><th>Tags</th></tr></thead>
+    <tbody>
+        <tr><td>TC001</td><td>admin_user</td><td>admin_pass</td><td>Y</td><td>@smoke</td></tr>
+        <tr><td>TC002</td><td>bad_user</td><td>wrong_pass</td><td>Y</td><td>@regression</td></tr>
+        <tr><td>TC003</td><td>locked_user</td><td>locked_pass</td><td>N</td><td>@regression</td></tr>
+    </tbody>
+</table>
+
+<div class="code-header">ExcelHelper Usage</div>
+<pre><code>const { ExcelHelper } = require('../../src');
+
+// Read all rows
+const all = ExcelHelper.readSheet('test/data/testData.xlsx', 'LoginTests');
+
+// Only executable rows (Execute = Y)
+const targeted = ExcelHelper.getExecutableRows('test/data/testData.xlsx', 'LoginTests');
+
+// Filter by criteria
+const smoke = ExcelHelper.getFilteredRows('test/data/testData.xlsx', 'LoginTests', {
+    Execute: 'Y', Tags: '@smoke'
+});
+
+// Convert to Cucumber Examples table
+const examples = ExcelHelper.toGherkinExamples(targeted, ['Username', 'Password']);
+
+// Write results back
+ExcelHelper.writeToExcel('test/data/results.xlsx', 'Results', results);</code></pre>
+
+<h3>Environment Variable Override</h3>
+<div class="callout callout-info">
+    <strong>💡 Runtime Override</strong>
+    Any data value can be overridden at runtime via environment variables:
+    <pre><code># Override the admin username
+DATA_VALIDUSERS_ADMIN_USERNAME=override_user npm test</code></pre>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="feature-generation">11. Feature Generation</h2>
+
+<p>Auto-generate Cucumber feature files from external data. This is essential for large data-driven suites where hundreds of scenarios come from Excel rows.</p>
+
+<h3>Configuration</h3>
+<div class="code-header">test/data/feature-config.json</div>
+<pre><code>[
+    {
+        "excelPath": "test/data/testData.xlsx",
+        "sheet": "LoginTests",
+        "featureName": "Data Driven Login Tests",
+        "scenarioName": "Login with credentials",
+        "steps": [
+            "Given I am on the login page",
+            "When I enter username \"&lt;Username&gt;\"",
+            "And I enter password \"&lt;Password&gt;\"",
+            "Then I should see \"&lt;ExpectedResult&gt;\""
+        ],
+        "columns": ["Username", "Password", "ExpectedResult"],
+        "filters": { "Execute": "Y" },
+        "tags": ["@generated", "@data-driven"]
+    }
+]</code></pre>
+
+<h3>Generate</h3>
+<pre><code># Generate feature files from config
+npm run generate:features
+
+# Generate per-tag runner configs
+npm run generate:runners
+
+# Clean generated files
+npx node scripts/generateFeatures.js --clean</code></pre>
+
+<h3>Template-Based Generation</h3>
+<p>For full control, create a <code>.template.feature</code> with <code>{{EXAMPLES_TABLE}}</code> and <code>{{TAG_LINE}}</code> placeholders:</p>
+<pre><code>@generated {{TAG_LINE}}
+Feature: Login Tests
+
+  Scenario Outline: Login as &lt;Username&gt;
+    Given I am on the login page
+    When I enter username "&lt;Username&gt;"
+    And I enter password "&lt;Password&gt;"
+    Then I should see "&lt;ExpectedResult&gt;"
+
+  {{EXAMPLES_TABLE}}</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="targeted-execution">12. Targeted Execution</h2>
+
+<p>Control precisely which tests run using an <strong>execution matrix</strong> — a JSON or Excel file listing test cases with execution flags.</p>
+
+<h3>Execution Matrix Format</h3>
+<table>
+    <thead><tr><th>TestCaseId</th><th>Feature</th><th>Tags</th><th>Execute</th><th>Env</th><th>Browser</th></tr></thead>
+    <tbody>
+        <tr><td>TC_LOGIN_001</td><td>login</td><td>@smoke</td><td>Y</td><td>all</td><td>all</td></tr>
+        <tr><td>TC_LOGIN_002</td><td>login</td><td>@regression</td><td>Y</td><td>staging</td><td>chrome</td></tr>
+        <tr><td>TC_LOGIN_003</td><td>login</td><td>@regression</td><td>N</td><td>all</td><td>all</td></tr>
+        <tr><td>TC_SEARCH_001</td><td>search</td><td>@smoke</td><td>Y</td><td>all</td><td>all</td></tr>
+    </tbody>
+</table>
+
+<p>The filter resolves: <strong>Execute = Y</strong> → match <strong>Env</strong> ("all" matches any) → match <strong>Browser</strong> ("all" matches any) → build tag expression → resolve feature files.</p>
+
+<h3>Running Targeted Tests</h3>
+<pre><code># Use the execution matrix
+npm run test:targeted -- --matrix test/data/execution-matrix.json
+
+# With environment and browser filters
+npm run test:targeted -- --matrix test/data/execution-matrix.json --env staging --browser chrome</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="mobile-testing">13. Mobile Testing</h2>
+
+<h3>Setup</h3>
+<pre><code># Install Appium
+npm install -g appium
+
+# Install drivers
+appium driver install uiautomator2   # Android
+appium driver install xcuitest        # iOS
+
+# Start Appium server
+appium</code></pre>
+
+<h3>Mobile Page Objects</h3>
+<div class="code-header">test/pages/mobile/LoginScreen.js</div>
+<pre><code>const { MobileBasePage } = require('../../src');
+
+class LoginScreen extends MobileBasePage {
+    get usernameInput() { return this.byAccessibilityId('username-input'); }
+    get passwordInput() { return this.byAccessibilityId('password-input'); }
+    get loginButton()   { return this.byAccessibilityId('login-button'); }
+
+    async login(username, password) {
+        await this.tap(this.usernameInput);
+        await this.setValue(this.usernameInput, username);
+        await this.tap(this.passwordInput);
+        await this.setValue(this.passwordInput, password);
+        await this.hideKeyboard();
+        await this.tap(this.loginButton);
+    }
+}
+
+module.exports = new LoginScreen();</code></pre>
+
+<h3>Available Gestures</h3>
+<table>
+    <thead><tr><th>Method</th><th>Description</th></tr></thead>
+    <tbody>
+        <tr><td><code>tap(element)</code></td><td>Single tap on element</td></tr>
+        <tr><td><code>doubleTap(element)</code></td><td>Double tap on element</td></tr>
+        <tr><td><code>longPress(element)</code></td><td>Long press on element</td></tr>
+        <tr><td><code>swipeUp() / swipeDown()</code></td><td>Vertical swipe</td></tr>
+        <tr><td><code>swipeLeft() / swipeRight()</code></td><td>Horizontal swipe</td></tr>
+        <tr><td><code>scrollToElement(selector)</code></td><td>Scroll until element is visible</td></tr>
+        <tr><td><code>pinch(element)</code></td><td>Pinch to zoom out</td></tr>
+        <tr><td><code>zoom(element)</code></td><td>Spread to zoom in</td></tr>
+        <tr><td><code>touchDragAndDrop(src, tgt)</code></td><td>Drag and drop via touch</td></tr>
+    </tbody>
+</table>
+
+<h3>Platform-Specific Selectors</h3>
+<pre><code>// Accessibility ID (cross-platform)
+const el = await screen.byAccessibilityId('submit-btn');
+
+// Android-specific
+const el = await screen.byAndroidUiAutomator('new UiSelector().text("Submit")');
+
+// iOS-specific
+const el = await screen.byIosPredicateString('name == "Submit"');
+const el = await screen.byIosClassChain('**/XCUIElementTypeButton[`label == "Submit"`]');
+
+// Platform-aware selector
+const el = await screen.byPlatform({
+    ios: '-ios predicate string:name == "Submit"',
+    android: 'android=new UiSelector().text("Submit")',
+});</code></pre>
+
+<h3>Running Mobile Tests</h3>
+<pre><code>BROWSER=android npm run test:mobile        # Android native
+BROWSER=ios npm run test:mobile             # iOS native
+BROWSER=android-chrome npm run test:mobile  # Mobile Chrome
+BROWSER=ios-safari npm run test:mobile      # Mobile Safari</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="environment-config">14. Environment Configuration</h2>
+
+<p>Each environment extends the base <code>wdio.conf.js</code> using deep merge — only override what changes:</p>
+
+<div class="code-header">config/wdio.staging.js</div>
+<pre><code>const { deepMerge } = require('./helpers/configHelper');
+const baseConfig = require('./wdio.conf').config;
+
+exports.config = deepMerge(baseConfig, {
+    baseUrl: 'https://staging.example.com',
+    // Override any other config here
+});</code></pre>
+
+<pre><code># Run against specific environments
+npm run test:dev
+npm run test:staging
+npm run test:prod
+npm run test:docker
+npm run test:mobile</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="browser-capabilities">15. Browser Capabilities</h2>
+
+<p>Capability files are in <code>config/capabilities/</code>. The resolver picks the right one based on the <code>BROWSER</code> env var:</p>
+
+<table>
+    <thead><tr><th>BROWSER Value</th><th>Capability File</th><th>Description</th></tr></thead>
+    <tbody>
+        <tr><td><code>chrome</code></td><td>chrome.js</td><td>Chrome desktop (default)</td></tr>
+        <tr><td><code>firefox</code></td><td>firefox.js</td><td>Firefox desktop</td></tr>
+        <tr><td><code>edge</code></td><td>edge.js</td><td>Edge desktop</td></tr>
+        <tr><td><code>android</code></td><td>android.js</td><td>Android native app</td></tr>
+        <tr><td><code>android-chrome</code></td><td>android.js</td><td>Android Chrome (mobile web)</td></tr>
+        <tr><td><code>ios</code></td><td>ios.js</td><td>iOS native app</td></tr>
+        <tr><td><code>ios-safari</code></td><td>ios.js</td><td>iOS Safari (mobile web)</td></tr>
+    </tbody>
+</table>
+
+<!-- ================================================================ -->
+<h2 id="env-variables">16. Environment Variables</h2>
+
+<table>
+    <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+        <tr><td><code>BASE_URL</code></td><td>https://example.com</td><td>Application base URL</td></tr>
+        <tr><td><code>BROWSER</code></td><td>chrome</td><td>Browser/platform to use</td></tr>
+        <tr><td><code>TEST_ENV</code></td><td>dev</td><td>Environment: dev, staging, prod</td></tr>
+        <tr><td><code>HEADLESS</code></td><td>false</td><td>Run in headless mode</td></tr>
+        <tr><td><code>MAX_INSTANCES</code></td><td>5</td><td>Parallel browser count</td></tr>
+        <tr><td><code>TAG_EXPRESSION</code></td><td><em>empty</em></td><td>Cucumber tag filter</td></tr>
+        <tr><td><code>LOG_LEVEL</code></td><td>warn</td><td>WDIO log verbosity</td></tr>
+        <tr><td><code>RETRY_COUNT</code></td><td>1</td><td>Failed scenario retries</td></tr>
+        <tr><td><code>TIMEOUT_IMPLICIT</code></td><td>15000</td><td>Default element wait (ms)</td></tr>
+        <tr><td><code>EXECUTION_MATRIX</code></td><td><em>empty</em></td><td>Path to execution matrix file</td></tr>
+        <tr><td><code>REPORT_BACKUP_PATH</code></td><td><em>empty</em></td><td>Shared folder for backups</td></tr>
+        <tr><td><code>REPORT_BACKUP_ENABLE</code></td><td>false</td><td>Enable report archival</td></tr>
+        <tr><td><code>REPORT_BACKUP_KEEP</code></td><td>30</td><td>Backup runs to retain</td></tr>
+        <tr><td><code>APPIUM_HOST</code></td><td>localhost</td><td>Appium server host</td></tr>
+        <tr><td><code>APPIUM_PORT</code></td><td>4723</td><td>Appium server port</td></tr>
+        <tr><td><code>ANDROID_DEVICE</code></td><td>emulator-5554</td><td>Android device identifier</td></tr>
+        <tr><td><code>IOS_DEVICE</code></td><td>iPhone 15</td><td>iOS device/simulator name</td></tr>
+    </tbody>
+</table>
+
+<!-- ================================================================ -->
+<h2 id="reporting">17. Reporting</h2>
+
+<div class="card-grid">
+    <div class="card">
+        <h4>Allure Report</h4>
+        <p>Interactive dashboards with trends, categories, test timelines, and drill-down into failures.</p>
+        <code>npm run report:allure</code>
+    </div>
+    <div class="card">
+        <h4>Cucumber HTML</h4>
+        <p>Business-friendly BDD report showing features, scenarios, pass/fail, and duration.</p>
+        <code>npm run report:html</code>
+    </div>
+    <div class="card">
+        <h4>Timeline Report</h4>
+        <p>Visual execution timeline showing parallel worker activity and test duration.</p>
+        <code>npm run report:timeline</code>
+    </div>
+</div>
+
+<p>All reports include:</p>
+<ul class="feature-list">
+    <li>Automatic screenshots on failure</li>
+    <li>Environment metadata (browser, OS, URL)</li>
+    <li>Execution timing per step/scenario</li>
+    <li>Cucumber step tables and data tables</li>
+</ul>
+
+<!-- ================================================================ -->
+<h2 id="report-backup">18. Report Backup</h2>
+
+<p>Archive test reports to a shared network folder after each run. Useful for shared QA dashboards, audit trails, and historical trend analysis.</p>
+
+<h3>Configuration</h3>
+<pre><code># In .env
+REPORT_BACKUP_ENABLE=true
+REPORT_BACKUP_PATH=\\\\fileserver\\qa-reports  # Windows UNC path
+REPORT_BACKUP_KEEP=30                           # Keep last 30 runs</code></pre>
+
+<h3>How It Works</h3>
+<div class="step-list">
+    <div class="step-item"><strong>Auto-trigger</strong> — <code>onComplete</code> hook in <code>wdio.conf.js</code> triggers <code>ReportBackupManager.backupReports()</code></div>
+    <div class="step-item"><strong>Timestamped folder</strong> — Creates <code>2024-01-15_143022_abc1/</code> in backup path</div>
+    <div class="step-item"><strong>Copy reports</strong> — All HTML, JSON, and screenshot files are copied</div>
+    <div class="step-item"><strong>Optional ZIP</strong> — Compress to <code>.zip</code> with <code>--zip</code> flag</div>
+    <div class="step-item"><strong>Prune old backups</strong> — Removes runs beyond <code>REPORT_BACKUP_KEEP</code></div>
+    <div class="step-item"><strong>Generate index</strong> — Creates browseable <code>index.html</code> listing all past runs</div>
+</div>
+
+<h3>Manual Backup</h3>
+<pre><code>npm run report:backup
+npm run report:backup -- --zip           # With ZIP compression
+npm run report:backup -- --keepLast 10   # Override retention</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="cicd">19. CI/CD Integration</h2>
+
+<h3>GitHub Actions</h3>
+<p>Pre-configured pipeline in <code>.github/workflows/ci.yml</code>:</p>
+<ul class="feature-list">
+    <li>Multi-browser matrix (Chrome, Firefox, Edge)</li>
+    <li>Allure report generation &amp; artifact upload</li>
+    <li>Automatic execution on push/PR</li>
+    <li>Environment secrets integration</li>
+</ul>
+
+<h3>CI Environment</h3>
+<pre><code>env:
+  BASE_URL: ${{ secrets.BASE_URL }}
+  TEST_ENV: staging
+  HEADLESS: true
+  REPORT_BACKUP_ENABLE: true
+  REPORT_BACKUP_PATH: /shared/qa-reports</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="docker">20. Docker Support</h2>
+
+<pre><code># Start Selenium Grid + run tests
+npm run docker:run
+
+# Or step by step
+npm run docker:build
+docker-compose up -d
+npm run test:docker
+npm run docker:down</code></pre>
+
+<p>The <code>docker-compose.yml</code> includes Selenium Hub, Chrome/Firefox/Edge nodes, and a test runner container.</p>
+
+<!-- ================================================================ -->
+<h2 id="logger">21. Logger</h2>
+
+<pre><code>const { Logger } = require('../../src');
+const logger = Logger.getInstance('MyModule');
+
+logger.info('Test started');
+logger.debug('Element found', { selector: '#login' });
+logger.warn('Retrying operation', { attempt: 2 });
+logger.error('Login failed', { error: err.message });</code></pre>
+
+<p>Logs are written to both console and <code>logs/</code> directory with rotation.</p>
+
+<!-- ================================================================ -->
+<h2 id="api-helper">22. API Helper</h2>
+
+<pre><code>const { ApiHelper } = require('../../src');
+const api = new ApiHelper('https://api.example.com');
+
+// CRUD operations
+const users = await api.get('/users');
+const created = await api.post('/users', { name: 'Test' });
+await api.put('/users/1', { name: 'Updated' });
+await api.delete('/users/1');
+
+// With headers
+api.setAuthToken('Bearer my-token');
+const response = await api.get('/protected-resource');</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="data-generator">23. Data Generator</h2>
+
+<pre><code>const { DataGenerator } = require('../../src');
+
+const user = DataGenerator.generateUser();
+// { firstName, lastName, email, phone, address, ... }
+
+const address = DataGenerator.generateAddress();
+// { street, city, state, zip, country }
+
+const card = DataGenerator.generateCreditCard();
+// { number, expiry, cvv }</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="other-helpers">24. Other Helpers</h2>
+
+<details>
+    <summary>EncryptionHelper — AES-256 encryption for credentials</summary>
+    <div class="details-body">
+<pre><code>const { EncryptionHelper } = require('../../src');
+const encrypted = EncryptionHelper.encrypt('my-secret');
+const decrypted = EncryptionHelper.decrypt(encrypted);</code></pre>
+    </div>
+</details>
+<details>
+    <summary>FileHelper — File system operations</summary>
+    <div class="details-body">
+<pre><code>const { FileHelper } = require('../../src');
+FileHelper.writeJson('output.json', data);
+const content = FileHelper.readJson('input.json');
+FileHelper.ensureDir('path/to/dir');</code></pre>
+    </div>
+</details>
+<details>
+    <summary>DateHelper — Date manipulation (Moment.js)</summary>
+    <div class="details-body">
+<pre><code>const { DateHelper } = require('../../src');
+const today = DateHelper.today('YYYY-MM-DD');
+const future = DateHelper.addDays(7, 'YYYY-MM-DD');</code></pre>
+    </div>
+</details>
+<details>
+    <summary>StringHelper — String utilities</summary>
+    <div class="details-body">
+<pre><code>const { StringHelper } = require('../../src');
+StringHelper.toCamelCase('hello world');   // 'helloWorld'
+StringHelper.generateRandom(10);           // Random 10-char string
+StringHelper.truncate('long text...', 5);  // 'long ...'</code></pre>
+    </div>
+</details>
+<details>
+    <summary>RetryHandler — Retry with exponential backoff</summary>
+    <div class="details-body">
+<pre><code>const { RetryHandler } = require('../../src');
+const result = await RetryHandler.retry(async () =&gt; {
+    return await unstableOperation();
+}, { maxRetries: 3, delay: 1000, backoff: 2 });</code></pre>
+    </div>
+</details>
+<details>
+    <summary>PerformanceTracker — Timing &amp; assertions</summary>
+    <div class="details-body">
+<pre><code>const { PerformanceTracker } = require('../../src');
+const tracker = new PerformanceTracker();
+tracker.start('login');
+// ... perform actions ...
+tracker.stop('login');
+tracker.assertDuration('login', 5000); // Fail if &gt; 5 seconds</code></pre>
+    </div>
+</details>
+
+<!-- ================================================================ -->
+<h2 id="all-commands">25. All Commands Reference</h2>
+
+<table>
+    <thead><tr><th>Command</th><th>Description</th></tr></thead>
+    <tbody>
+        <tr><td><code>npm test</code></td><td>Run all tests</td></tr>
+        <tr><td><code>npm run test:dev</code></td><td>Run against dev environment</td></tr>
+        <tr><td><code>npm run test:staging</code></td><td>Run against staging</td></tr>
+        <tr><td><code>npm run test:prod</code></td><td>Run against production</td></tr>
+        <tr><td><code>npm run test:smoke</code></td><td>Run @smoke scenarios</td></tr>
+        <tr><td><code>npm run test:regression</code></td><td>Run @regression scenarios</td></tr>
+        <tr><td><code>npm run test:sanity</code></td><td>Run @sanity scenarios</td></tr>
+        <tr><td><code>npm run test:chrome</code></td><td>Run on Chrome</td></tr>
+        <tr><td><code>npm run test:firefox</code></td><td>Run on Firefox</td></tr>
+        <tr><td><code>npm run test:edge</code></td><td>Run on Edge</td></tr>
+        <tr><td><code>npm run test:headless</code></td><td>Run headless</td></tr>
+        <tr><td><code>npm run test:parallel</code></td><td>Run with 5 parallel instances</td></tr>
+        <tr><td><code>npm run test:docker</code></td><td>Run on Selenium Grid</td></tr>
+        <tr><td><code>npm run test:mobile</code></td><td>Run with Appium</td></tr>
+        <tr><td><code>npm run test:targeted</code></td><td>Run execution-matrix tests</td></tr>
+        <tr><td><code>npm run generate:features</code></td><td>Generate features from data</td></tr>
+        <tr><td><code>npm run generate:runners</code></td><td>Generate per-tag runner configs</td></tr>
+        <tr><td><code>npm run report:generate</code></td><td>Generate all reports</td></tr>
+        <tr><td><code>npm run report:allure</code></td><td>Open Allure report</td></tr>
+        <tr><td><code>npm run report:html</code></td><td>Generate Cucumber HTML report</td></tr>
+        <tr><td><code>npm run report:backup</code></td><td>Backup reports to shared folder</td></tr>
+        <tr><td><code>npm run clean</code></td><td>Remove generated artifacts</td></tr>
+        <tr><td><code>npm run lint</code></td><td>Run ESLint</td></tr>
+        <tr><td><code>npm run format</code></td><td>Auto-format with Prettier</td></tr>
+        <tr><td><code>npm run validate</code></td><td>Lint + format check</td></tr>
+        <tr><td><code>npm run health-check</code></td><td>Validate framework setup</td></tr>
+        <tr><td><code>npm run docker:build</code></td><td>Build Docker images</td></tr>
+        <tr><td><code>npm run docker:run</code></td><td>Start Grid + run tests</td></tr>
+        <tr><td><code>npm run docker:down</code></td><td>Stop Docker containers</td></tr>
+    </tbody>
+</table>
+
+<!-- ================================================================ -->
+<h2 id="api-reference">26. API Reference</h2>
+
+<p>Every module is importable from a single entry point:</p>
+
+<pre><code>const {
+    // Core
+    BasePage, BaseComponent, MobileBasePage,
+    BrowserManager, ElementHelper,
+    ShadowDomResolver, FrameManager,
+
+    // Helpers
+    ExcelHelper, DataDrivenManager, dataDrivenManager,
+    FeatureGenerator, TestExecutionFilter,
+    ApiHelper, DataGenerator, FileHelper,
+    DateHelper, StringHelper, EncryptionHelper,
+
+    // Utils
+    Logger, CustomReporter, RetryHandler,
+    ScreenshotManager, PerformanceTracker,
+    ReportBackupManager,
+
+    // Constants
+    Timeouts, Environments, Messages,
+} = require('./src');</code></pre>
+
+<!-- ================================================================ -->
+<h2 id="troubleshooting">27. Troubleshooting</h2>
+
+<table>
+    <thead><tr><th>Issue</th><th>Solution</th></tr></thead>
+    <tbody>
+        <tr><td>Element not found</td><td>Check selector. Element may be in shadow DOM or iframe (auto-resolved). Increase <code>TIMEOUT_IMPLICIT</code>.</td></tr>
+        <tr><td>Stale element reference</td><td>Use <code>ElementHelper.safeClick()</code> for automatic retry with re-resolution.</td></tr>
+        <tr><td>WDIO timeout</td><td>Increase <code>TIMEOUT_IMPLICIT</code> or <code>TIMEOUT_PAGE_LOAD</code> env vars.</td></tr>
+        <tr><td>Allure report empty</td><td>Ensure Java JDK &gt;= 11 is installed and <code>allure-commandline</code> is in PATH.</td></tr>
+        <tr><td>Mobile tests fail</td><td>Ensure Appium server is running and device/emulator is available.</td></tr>
+        <tr><td>Excel file not found</td><td>Use absolute path or path relative to project root.</td></tr>
+        <tr><td>Report backup fails</td><td>Check <code>REPORT_BACKUP_PATH</code> is accessible for writing.</td></tr>
+        <tr><td>Feature generation error</td><td>Verify <code>feature-config.json</code> has valid excelPath and sheet names.</td></tr>
+        <tr><td>Docker grid timeout</td><td>Wait for grid nodes to register; check <code>docker-compose logs</code>.</td></tr>
+        <tr><td>Permission denied (Linux)</td><td>Run <code>chmod +x scripts/*.js</code>.</td></tr>
+    </tbody>
+</table>
+
+<!-- ================================================================ -->
+<h2 id="extending">28. Extending the Framework</h2>
+
+<h3>Add a New Page Object</h3>
+<div class="step-list">
+    <div class="step-item">Create <code>test/pages/MyPage.js</code> extending <code>BasePage</code></div>
+    <div class="step-item">Define selectors as getters, actions as async methods</div>
+    <div class="step-item">Export as singleton: <code>module.exports = new MyPage()</code></div>
+</div>
+
+<h3>Add a New Helper Module</h3>
+<div class="step-list">
+    <div class="step-item">Create <code>src/helpers/MyHelper.js</code></div>
+    <div class="step-item">Export the class</div>
+    <div class="step-item">Add to <code>src/helpers/index.js</code> barrel</div>
+    <div class="step-item">Import via <code>const { MyHelper } = require('./src')</code></div>
+</div>
+
+<h3>Add a New Capability</h3>
+<div class="step-list">
+    <div class="step-item">Create <code>config/capabilities/myBrowser.js</code></div>
+    <div class="step-item">Export a function returning the capabilities object</div>
+    <div class="step-item">Add a <code>case</code> in <code>config/capabilities/index.js</code> resolver</div>
+    <div class="step-item">Use via <code>BROWSER=myBrowser npm test</code></div>
+</div>
+
+<!-- FOOTER -->
+<hr style="margin-top: 60px;">
+<p style="text-align: center; color: #888; font-size: .85rem; margin-top: 20px;">
+    Enterprise WebdriverIO Framework — User Guide v2.0<br>
+    Built by Enterprise QA Platform Team
+</p>
+
+</div><!-- /main-content -->
+</body>
+</html>

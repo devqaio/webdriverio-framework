@@ -1,0 +1,14 @@
+{
+  "_note": "Environment URLs are managed in src/constants/Environments.js — do not duplicate here",
+  "searchQueries": [
+    "automation testing",
+    "webdriverio",
+    "cucumber bdd",
+    "selenium",
+    "test framework"
+  ],
+  "pagination": {
+    "defaultPageSize": 10,
+    "maxPages": 100
+  }
+}

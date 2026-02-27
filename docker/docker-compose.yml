@@ -1,0 +1,101 @@
+version: "3.8"
+
+services:
+  # ─── Selenium Hub ────────────────────────────────────────
+  selenium-hub:
+    image: selenium/hub:4.18.1
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+    environment:
+      - GRID_MAX_SESSION=10
+      - GRID_BROWSER_TIMEOUT=120
+      - GRID_TIMEOUT=120
+    networks:
+      - test-grid
+
+  # ─── Chrome Node ─────────────────────────────────────────
+  chrome-node:
+    image: selenium/node-chrome:4.18.1
+    container_name: chrome-node
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=5
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+      - SE_VNC_NO_PASSWORD=1
+    ports:
+      - "7900:7900"    # VNC for visual debugging
+    volumes:
+      - /dev/shm:/dev/shm
+    networks:
+      - test-grid
+
+  # ─── Firefox Node ────────────────────────────────────────
+  firefox-node:
+    image: selenium/node-firefox:4.18.1
+    container_name: firefox-node
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=5
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+    volumes:
+      - /dev/shm:/dev/shm
+    networks:
+      - test-grid
+
+  # ─── Edge Node ───────────────────────────────────────────
+  edge-node:
+    image: selenium/node-edge:4.18.1
+    container_name: edge-node
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=3
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+    volumes:
+      - /dev/shm:/dev/shm
+    networks:
+      - test-grid
+
+  # ─── Test Runner ─────────────────────────────────────────
+  test-runner:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: test-runner
+    depends_on:
+      - selenium-hub
+      - chrome-node
+    environment:
+      - SELENIUM_HUB_HOST=selenium-hub
+      - SELENIUM_HUB_PORT=4444
+      - SELENIUM_HUB_PATH=/wd/hub
+      - HEADLESS=true
+      - BROWSER=chrome
+      - BASE_URL=${BASE_URL:-https://example.com}
+      - TEST_ENV=${TEST_ENV:-dev}
+      - TAG_EXPRESSION=${TAG_EXPRESSION:-}
+    volumes:
+      - ../reports:/app/reports
+      - ../screenshots:/app/screenshots
+      - ../logs:/app/logs
+    command: npx wdio run config/wdio.docker.js
+    networks:
+      - test-grid
+
+networks:
+  test-grid:
+    driver: bridge
