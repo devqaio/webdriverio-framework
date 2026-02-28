@@ -8,6 +8,7 @@ screenshots/
 videos/
 logs/
 *.log
+out/
 
 # Allure
 allure-results/
@@ -46,6 +47,9 @@ temp/
 # Coverage
 coverage/
 .nyc_output/
+
+# Generated API docs
+docs/api/
 
 # Chrome
 chromedriver

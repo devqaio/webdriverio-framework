@@ -46,7 +46,9 @@ class ApiHelper {
 
     /**
      * Enable automatic retries for transient HTTP failures (5xx, network errors).
-     * @param {{ maxAttempts?: number, delay?: number }} config
+     * @param {Object} config
+     * @param {number} [config.maxAttempts]
+     * @param {number} [config.delay]
      */
     enableRetry({ maxAttempts = 3, delay = 1000 } = {}) {
         this.retryConfig = { maxAttempts, delay };

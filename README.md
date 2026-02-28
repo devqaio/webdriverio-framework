@@ -32,6 +32,7 @@
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [API Reference](#api-reference)
+- [Generating API Documentation](#generating-api-documentation)
 - [Additional Documentation](#additional-documentation)
 
 ---
@@ -1275,8 +1276,84 @@ const {
 
 ---
 
+## Generating API Documentation
+
+The framework uses [JSDoc](https://jsdoc.app/) to generate a complete, searchable HTML API reference from source code annotations. The generated documentation covers **all three packages** (Core, Web UI, Mobile) and includes class hierarchies, method signatures, parameter descriptions, return types, and usage examples.
+
+### Prerequisites
+
+- Node.js ≥ 18
+- Dependencies installed (`npm install`)
+
+The following dev dependencies are used (already declared in `package.json`):
+
+| Package | Purpose |
+|---------|---------|
+| `jsdoc` | JSDoc documentation generator |
+### Generate the Documentation
+
+```bash
+# Generate API docs into docs/api/
+npm run docs:generate
+
+# Generate and immediately open in browser (Windows)
+npm run docs:open
+
+# Remove previously generated docs
+npm run docs:clean
+```
+
+### Output
+
+The generated documentation is written to:
+
+```
+docs/
+└── api/
+    ├── index.html          ← Entry point (open this in a browser)
+    ├── AbstractBasePage.html
+    ├── BasePage.html
+    ├── MobileBasePage.html
+    ├── Logger.html
+    ├── ApiHelper.html
+    ├── ... (one page per class/module)
+    └── scripts/ & styles/
+```
+
+> **Note:** `docs/api/` is excluded from version control via `.gitignore`. Each developer/CI pipeline generates their own copy from source.
+
+### Configuration
+
+The JSDoc configuration lives in [`jsdoc.config.json`](jsdoc.config.json) at the project root. Key options:
+
+| Option | Value | Description |
+|--------|-------|-------------|
+| Source paths | `packages/core/src`, `packages/ui/src`, `packages/mobile/src` | All three packages |
+| Template | `default` | JSDoc standard HTML template |
+| Output | `docs/api` | Generated doc directory |
+| Plugins | `plugins/markdown` | Renders Markdown in JSDoc comments |
+
+### Generating Docs in Other Languages
+
+This framework's [Requirements Specification](docs/REQUIREMENTS.md) is **language-agnostic** — it can be implemented in any language. Each language has its own equivalent documentation tool:
+
+| Language | Tool | Command |
+|----------|------|---------|
+| JavaScript/Node.js | [JSDoc](https://jsdoc.app/) | `npx jsdoc -c jsdoc.config.json` |
+| TypeScript | [TypeDoc](https://typedoc.org/) | `npx typedoc --entryPoints src/ --out docs/api` |
+| Java | [Javadoc](https://docs.oracle.com/javase/8/docs/technotes/tools/windows/javadoc.html) | `mvn javadoc:javadoc` or `javadoc -d docs/api` |
+| Python | [Sphinx](https://www.sphinx-doc.org/) | `sphinx-build -b html docs/source docs/api` |
+| C# / .NET | [DocFX](https://dotnet.github.io/docfx/) | `docfx build` |
+| Ruby | [YARD](https://yardoc.org/) | `yard doc --output-dir docs/api` |
+| Go | [GoDoc](https://pkg.go.dev/) | `godoc -http=:6060` |
+| Kotlin | [Dokka](https://github.com/Kotlin/dokka) | `./gradlew dokkaHtml` |
+
+---
+
 ## Additional Documentation
 
+- **[Requirements Specification](docs/REQUIREMENTS.md)** — Language-agnostic requirements document detailing every capability expected from the framework (187 requirements, traceable to source)
+- **[API Reference (generated)](docs/api/index.html)** — Auto-generated JSDoc HTML documentation (run `npm run docs:generate` first)
 - **[User Guide](docs/USER_GUIDE.html)** — Comprehensive HTML user guide with detailed walkthroughs, visual examples, and searchable API reference
 - **[Getting Started](docs/GETTING_STARTED.md)** — Step-by-step onboarding guide for new team members
 

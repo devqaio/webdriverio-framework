@@ -77,7 +77,7 @@ class ExcelHelper {
      * Read an entire workbook and return all sheets as an object.
      *
      * @param {string} filePath  Path to .xlsx file
-     * @returns {{ [sheetName: string]: object[] }}  Sheet name → rows
+     * @returns {Object.<string, Array.<Object>>}  Sheet name → rows
      */
     static readWorkbook(filePath) {
         const XLSX = getXlsx();

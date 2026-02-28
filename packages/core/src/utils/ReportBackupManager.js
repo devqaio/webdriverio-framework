@@ -127,7 +127,7 @@ class ReportBackupManager {
     /**
      * List all existing backup directories.
      *
-     * @returns {{ name: string, path: string, date: Date }[]}
+     * @returns {Array.<{name: string, path: string, date: Date}>}
      */
     listBackups() {
         const projectDir = path.join(this.backupPath, this.projectName);

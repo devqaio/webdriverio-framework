@@ -1,0 +1,38 @@
+{
+  "source": {
+    "include": [
+      "packages/core/src",
+      "packages/core/index.js",
+      "packages/ui/src",
+      "packages/ui/index.js",
+      "packages/mobile/src",
+      "packages/mobile/index.js"
+    ],
+    "includePattern": ".+\\.js$",
+    "excludePattern": "(node_modules|test|spec)"
+  },
+  "opts": {
+    "destination": "docs/api",
+    "recurse": true,
+    "readme": "README.md",
+    "encoding": "utf8"
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": false,
+    "default": {
+      "outputSourceFiles": true,
+      "includeDate": false
+    }
+  },
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc", "closure"]
+  },
+  "markdown": {
+    "idInHeadings": true
+  }
+}

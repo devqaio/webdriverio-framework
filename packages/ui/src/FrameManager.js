@@ -108,7 +108,7 @@ class FrameManager {
     /**
      * Get a list of all iframe elements on the current page (all levels deep).
      *
-     * @returns {Promise<{ element: WebdriverIO.Element, path: number[] }[]>}
+     * @returns {Promise.<Array.<{element: WebdriverIO.Element, path: Array.<number>}>>}
      */
     async getAllFrames() {
         await this.switchToDefaultContent();

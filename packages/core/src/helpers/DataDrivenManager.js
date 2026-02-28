@@ -35,9 +35,9 @@ const logger = Logger.getInstance('DataDrivenManager');
 
 class DataDrivenManager {
     constructor() {
-        /** @type {Map<string, object>} Loaded data stores keyed by source path / alias */
+        /** @type {Map<string, object>} */
         this._stores = new Map();
-        /** @type {object} Merged flat data object for dot-notation lookups */
+        /** @type {object} */
         this._cache = {};
     }
 

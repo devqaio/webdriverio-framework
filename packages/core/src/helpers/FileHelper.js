@@ -207,7 +207,7 @@ class FileHelper {
 
     // ─── Temp File ────────────────────────────────────────────
 
-    /** @private Track created temp files for cleanup. */
+    /** @private */
     static _tempFiles = [];
 
     /**

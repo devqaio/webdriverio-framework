@@ -51,19 +51,19 @@ const fileFormat = winston.format.combine(
 // ─── Logger Class ─────────────────────────────────────────────
 
 class Logger {
-    /** @private Cache of Winston logger instances keyed by label */
+    /** @private */
     static _instances = {};
 
-    /** @private Current worker CID (set once per worker process) */
+    /** @private */
     static _workerCid = null;
 
-    /** @private Current scenario name (set/cleared per scenario) */
+    /** @private */
     static _scenarioName = null;
 
-    /** @private Per-scenario file transports (managed lifecycle) */
+    /** @private */
     static _scenarioTransports = new Map();
 
-    /** @private Guard against double flush */
+    /** @private */
     static _flushed = false;
 
     // ─── Worker / Scenario Context ────────────────────────────
@@ -157,7 +157,8 @@ class Logger {
     }
 
     /**
-     * @private Create a new Winston logger with appropriate transports.
+     * Create a new Winston logger with appropriate transports.
+     * @private
      */
     static _createLogger(label) {
         const transports = [

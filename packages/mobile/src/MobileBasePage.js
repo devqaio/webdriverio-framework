@@ -623,7 +623,7 @@ class MobileBasePage extends AbstractBasePage {
 
     // ─── Private Helpers ──────────────────────────────────────
 
-    /** @private Synchronous Android platform check using cached capabilities. */
+    /** @private */
     _isAndroid() {
         try {
             // Use cached platform if available (populated by getPlatform())
@@ -639,7 +639,7 @@ class MobileBasePage extends AbstractBasePage {
         }
     }
 
-    /** @private Extract the app bundle/package ID from current capabilities. */
+    /** @private */
     async _getAppBundleId() {
         const caps = await browser.capabilities;
         const bundleId = caps['appium:appPackage'] || caps['appium:bundleId']
@@ -652,7 +652,7 @@ class MobileBasePage extends AbstractBasePage {
         return bundleId;
     }
 
-    /** @private Get the app path from capabilities (used for fullReset reinstall). */
+    /** @private */
     _getAppPath() {
         const caps = browser.capabilities || {};
         return caps['appium:app'] || caps.app || '';
