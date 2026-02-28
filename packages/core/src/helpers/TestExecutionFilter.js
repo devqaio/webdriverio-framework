@@ -25,6 +25,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const { Logger } = require('../utils/Logger');
 const { ExcelHelper } = require('./ExcelHelper');
+const { ConfigResolver } = require('../utils/ConfigResolver');
 
 const logger = Logger.getInstance('TestExecutionFilter');
 
@@ -96,8 +97,8 @@ class TestExecutionFilter {
     getTargetedRows(overrides = {}) {
         if (!this._matrix) return [];
 
-        const env = (overrides.env || process.env.TEST_ENV || '').toLowerCase();
-        const browser = (overrides.browser || process.env.BROWSER || '').toLowerCase();
+        const env = (overrides.env || ConfigResolver.get('TEST_ENV', '')).toLowerCase();
+        const browser = (overrides.browser || ConfigResolver.browser || '').toLowerCase();
 
         return this._matrix.filter((row) => {
             // Must be flagged for execution

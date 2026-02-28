@@ -124,7 +124,8 @@ class EncryptionHelper {
      * @private
      */
     static _resolvePassphrase(passphrase) {
-        const resolved = passphrase || process.env.ENCRYPTION_KEY;
+        const { ConfigResolver } = require('../utils/ConfigResolver');
+        const resolved = passphrase || ConfigResolver.get('ENCRYPTION_KEY');
         if (!resolved) {
             throw new Error(
                 'ENCRYPTION_KEY is not set. Provide a passphrase argument or set the ENCRYPTION_KEY environment variable.',

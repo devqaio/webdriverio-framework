@@ -6,7 +6,8 @@
       "packages/ui/src",
       "packages/ui/index.js",
       "packages/mobile/src",
-      "packages/mobile/index.js"
+      "packages/mobile/index.js",
+      "config/capabilities"
     ],
     "includePattern": ".+\\.js$",
     "excludePattern": "(node_modules|test|spec)"

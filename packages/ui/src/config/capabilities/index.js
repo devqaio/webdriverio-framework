@@ -2,6 +2,7 @@
  * Web Capabilities Index — Chrome, Firefox, Edge
  */
 
+const { ConfigResolver } = require('@wdio-framework/core');
 const { getChromeCapabilities } = require('./chrome');
 const { getFirefoxCapabilities } = require('./firefox');
 const { getEdgeCapabilities } = require('./edge');
@@ -14,7 +15,7 @@ const { getEdgeCapabilities } = require('./edge');
  * @returns {Object} WebdriverIO capability object
  */
 function resolveWebCapabilities(browserName, options = {}) {
-    const name = (browserName || process.env.BROWSER || 'chrome').toLowerCase();
+    const name = (browserName || ConfigResolver.browser).toLowerCase();
 
     switch (name) {
         case 'chrome':

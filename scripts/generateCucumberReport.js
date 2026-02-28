@@ -9,6 +9,16 @@
 const path = require('path');
 const fs = require('fs-extra');
 
+let _env, _browser;
+try {
+    const { ConfigResolver } = require('@wdio-framework/core');
+    _env = ConfigResolver.get('TEST_ENV', 'dev');
+    _browser = ConfigResolver.browser;
+} catch {
+    _env = process.env.TEST_ENV || 'dev';
+    _browser = process.env.BROWSER || 'chrome';
+}
+
 const ROOT = process.cwd();
 const REPORTS_DIR = path.join(ROOT, 'reports');
 const JSON_DIR = path.join(REPORTS_DIR, 'cucumber-json');
@@ -40,8 +50,8 @@ try {
             title: 'Run Details',
             data: [
                 { label: 'Project', value: 'Enterprise Framework' },
-                { label: 'Environment', value: process.env.TEST_ENV || 'dev' },
-                { label: 'Browser', value: process.env.BROWSER || 'chrome' },
+                { label: 'Environment', value: _env },
+                { label: 'Browser', value: _browser },
                 { label: 'Date', value: new Date().toLocaleString() },
                 { label: 'Node', value: process.version },
                 { label: 'Platform', value: process.platform },

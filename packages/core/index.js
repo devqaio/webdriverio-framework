@@ -27,6 +27,7 @@ const {
     PerformanceTracker,
     ReportBackupManager,
     CustomDriverResolver,
+    ConfigResolver,
 } = require('./src/utils');
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -67,6 +68,7 @@ module.exports = {
     PerformanceTracker,
     ReportBackupManager,
     CustomDriverResolver,
+    ConfigResolver,
 
     // Helpers
     ApiHelper,

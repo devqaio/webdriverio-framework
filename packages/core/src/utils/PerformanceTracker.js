@@ -2,12 +2,45 @@
  * ═══════════════════════════════════════════════════════════════
  * PerformanceTracker - Page Load & Execution Metrics
  * ═══════════════════════════════════════════════════════════════
+ *
+ * Tracks execution timing and collects browser Navigation Timing API
+ * metrics for performance analysis. Provides:
+ *
+ * - Named start/stop timers for measuring operation durations
+ * - Async operation measurement wrapper
+ * - Navigation Timing API data (TTFB, DOM load, full page load)
+ * - Resource-level performance entries
+ * - Threshold assertions for CI/CD quality gates
+ * - Singleton access for global metric collection
+ *
+ * @module PerformanceTracker
+ * @example
+ * const { PerformanceTracker } = require('@wdio-framework/core');
+ * const perf = PerformanceTracker.getInstance();
+ *
+ * // Measure an operation
+ * const result = await perf.measure('loginFlow', async () => {
+ *     await loginPage.login('user', 'pass');
+ *     return await dashboardPage.isLoaded();
+ * });
+ *
+ * // Assert page load time for CI gate
+ * await perf.assertPageLoadUnder(3000);
+ *
+ * // Get all collected metrics
+ * console.table(perf.getMetrics());
  */
 
 const { Logger } = require('./Logger');
 
 const logger = Logger.getInstance('PerformanceTracker');
 
+/**
+ * Performance measurement and browser metrics collector.
+ * Use {@link PerformanceTracker.getInstance} for the shared singleton.
+ *
+ * @class PerformanceTracker
+ */
 class PerformanceTracker {
     constructor() {
         this._timers = {};
@@ -15,7 +48,16 @@ class PerformanceTracker {
     }
 
     /**
-     * Start a named timer.
+     * Start a named timer. Call {@link stopTimer} with the same name to
+     * record the elapsed duration.
+     *
+     * @param {string} name  Unique timer identifier
+     * @returns {void}
+     *
+     * @example
+     * perf.startTimer('searchQuery');
+     * await searchPage.submitSearch('test automation');
+     * const elapsed = perf.stopTimer('searchQuery');
      */
     startTimer(name) {
         this._timers[name] = Date.now();
@@ -24,6 +66,10 @@ class PerformanceTracker {
 
     /**
      * Stop a named timer and return the elapsed milliseconds.
+     * The measurement is automatically recorded in the internal metrics list.
+     *
+     * @param {string} name  Timer identifier (must match a previous {@link startTimer} call)
+     * @returns {number} Elapsed time in milliseconds, or `0` if the timer was never started
      */
     stopTimer(name) {
         if (!this._timers[name]) {
@@ -39,7 +85,18 @@ class PerformanceTracker {
     }
 
     /**
-     * Measure the execution time of an async function.
+     * Measure the execution time of an async function. The timer is
+     * automatically started before `fn` and stopped after (even on error).
+     *
+     * @param {string}   name  Metric label
+     * @param {Function} fn    Async function to measure
+     * @returns {Promise<*>} The return value of `fn`
+     *
+     * @example
+     * const isLoaded = await perf.measure('checkoutFlow', async () => {
+     *     await cartPage.proceedToCheckout();
+     *     return await checkoutPage.isDisplayed();
+     * });
      */
     async measure(name, fn) {
         this.startTimer(name);
@@ -53,6 +110,19 @@ class PerformanceTracker {
 
     /**
      * Collect browser performance timing (Navigation Timing API).
+     *
+     * Returns an object with key metrics:
+     * `domContentLoaded`, `domComplete`, `loadComplete`,
+     * `timeToFirstByte`, `dnsLookup`, `tcpConnect`,
+     * `serverResponseTime`, `pageRendering`, `redirectTime`,
+     * `transferSize`, `encodedBodySize`, `decodedBodySize`.
+     *
+     * @returns {Promise<Object|null>} Performance metrics or `null` if unavailable
+     *
+     * @example
+     * const metrics = await perf.getPagePerformance();
+     * console.log(`TTFB: ${metrics.timeToFirstByte}ms`);
+     * console.log(`Full load: ${metrics.loadComplete}ms`);
      */
     async getPagePerformance() {
         return browser.execute(() => {
@@ -76,7 +146,15 @@ class PerformanceTracker {
     }
 
     /**
-     * Collect resource-level performance entries.
+     * Collect resource-level performance entries from the browser.
+     * Each entry includes the resource name, initiator type, duration,
+     * and transfer size.
+     *
+     * @returns {Promise<Array<{name: string, type: string, duration: number, transferSize: number}>>}
+     *
+     * @example
+     * const resources = await perf.getResourcePerformance();
+     * const slowAPIs = resources.filter(r => r.type === 'xmlhttprequest' && r.duration > 2000);
      */
     async getResourcePerformance() {
         return browser.execute(() => {
@@ -91,14 +169,17 @@ class PerformanceTracker {
     }
 
     /**
-     * Return all collected timer metrics.
+     * Return all collected timer metrics as an array of objects.
+     *
+     * @returns {Array<{name: string, elapsed: number, timestamp: string}>}
      */
     getMetrics() {
         return [...this._metrics];
     }
 
     /**
-     * Clear all collected metrics.
+     * Clear all collected metrics. Useful between test scenarios.
+     * @returns {void}
      */
     clearMetrics() {
         this._metrics = [];
@@ -106,6 +187,15 @@ class PerformanceTracker {
 
     /**
      * Assert that a page loads within a given threshold.
+     * Uses the Navigation Timing API `loadComplete` metric.
+     *
+     * @param {number} maxMs  Maximum allowed page-load time in milliseconds
+     * @returns {Promise<void>}
+     * @throws {Error} If page load exceeds `maxMs` or timing data is unavailable
+     *
+     * @example
+     * // Fail the test if load exceeds 3 seconds
+     * await perf.assertPageLoadUnder(3000);
      */
     async assertPageLoadUnder(maxMs) {
         const perf = await this.getPagePerformance();
@@ -120,6 +210,15 @@ class PerformanceTracker {
 
     // ─── Singleton ────────────────────────────────────────────
 
+    /**
+     * Return the singleton PerformanceTracker instance.
+     * Creates the instance on first call.
+     *
+     * @returns {PerformanceTracker}
+     *
+     * @example
+     * const perf = PerformanceTracker.getInstance();
+     */
     static getInstance() {
         if (!PerformanceTracker._instance) {
             PerformanceTracker._instance = new PerformanceTracker();

@@ -14,6 +14,7 @@
 - [Key Features](#key-features)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
+- [Cloud Testing](#cloud-testing)
 - [Configuration](#configuration)
 - [Test Execution](#test-execution)
 - [Data Externalization](#data-externalization)
@@ -455,7 +456,63 @@ npm run test:staging    # Uses config/wdio.staging.js
 npm run test:prod       # Uses config/wdio.prod.js
 npm run test:docker     # Uses config/wdio.docker.js (Selenium Grid)
 npm run test:mobile     # Uses config/wdio.mobile.js (Appium)
+npm run test:cloud      # Uses config/wdio.cloud.js (Cloud provider)
 ```
+
+---
+
+## Cloud Testing
+
+Run tests on cloud platforms without changing test code. Set `CLOUD_PROVIDER` and
+the provider's credentials, then use `wdio.cloud.js`:
+
+### Supported Providers
+
+| Provider | `CLOUD_PROVIDER` value | Required Variables |
+|----------|----------------------|-------------------|
+| BrowserStack | `browserstack` or `bs` | `BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY` |
+| Sauce Labs | `saucelabs` or `sauce` | `SAUCE_USERNAME`, `SAUCE_ACCESS_KEY` |
+| LambdaTest | `lambdatest` or `lt` | `LAMBDATEST_USERNAME`, `LAMBDATEST_ACCESS_KEY` |
+| Perfecto | `perfecto` | `PERFECTO_CLOUD_NAME`, `PERFECTO_SECURITY_TOKEN` |
+
+### Quick Start (BrowserStack example)
+
+```bash
+# .env or shell
+CLOUD_PROVIDER=browserstack
+BROWSERSTACK_USERNAME=your_username
+BROWSERSTACK_ACCESS_KEY=your_key
+BROWSER=chrome
+
+# Run
+npx wdio run config/wdio.cloud.js
+```
+
+### Cloud Testing Modes
+
+Each provider supports three testing modes controlled by the `CLOUD_TEST_TYPE`
+environment variable (or `BROWSERSTACK_TEST_TYPE`, `SAUCE_TEST_TYPE`, etc.):
+
+| Mode | Description |
+|------|-------------|
+| `desktop` _(default)_ | Desktop browser testing |
+| `mobile` | Mobile browser testing on real/virtual devices |
+| `app` | Native mobile app testing |
+
+### Capabilities Structure
+
+Cloud capabilities are built from `config/capabilities/<provider>.js` modules.
+Each module exports functions for options, desktop, mobile, and app capabilities:
+
+```javascript
+const { resolveCloudCapabilities, getCloudConnection } = require('./config/capabilities');
+
+// Automatically resolves provider from CLOUD_PROVIDER env var
+const caps = resolveCloudCapabilities({ testType: 'desktop' });
+const connection = getCloudConnection('browserstack');
+```
+
+See [.env.example](.env.example) for all available cloud configuration variables.
 
 Each environment config extends the base `wdio.conf.js` using deep merge, so you only need to override what changes.
 
@@ -499,6 +556,7 @@ npx wdio run config/wdio.conf.js --cucumberOpts.tagExpression='@smoke and @login
 | `npm run test:parallel` | Run with 5 parallel instances |
 | `npm run test:docker` | Run on Selenium Grid in Docker |
 | `npm run test:mobile` | Run with Appium (mobile) |
+| `npm run test:cloud` | Run on cloud platform (BrowserStack, Sauce Labs, etc.) |
 | `npm run test:targeted` | Run execution-matrix-driven targeted tests |
 | `npm run generate:features` | Generate feature files from data |
 | `npm run generate:runners` | Generate per-tag runner configs |
@@ -1269,9 +1327,15 @@ const {
     DateHelper, StringHelper, EncryptionHelper,
     Logger, CustomReporter, RetryHandler,
     ScreenshotManager, PerformanceTracker,
-    ReportBackupManager,
+    ReportBackupManager, ConfigResolver,
     Timeouts, Environments, Messages,
 } = require('@wdio-framework/core');
+
+// Cloud capabilities (used internally by wdio.cloud.js)
+const {
+    resolveCloudCapabilities,
+    getCloudConnection,
+} = require('./config/capabilities');
 ```
 
 ---
@@ -1328,7 +1392,7 @@ The JSDoc configuration lives in [`jsdoc.config.json`](jsdoc.config.json) at the
 
 | Option | Value | Description |
 |--------|-------|-------------|
-| Source paths | `packages/core/src`, `packages/ui/src`, `packages/mobile/src` | All three packages |
+| Source paths | `packages/core/src`, `packages/ui/src`, `packages/mobile/src`, `config/capabilities` | All three packages + cloud capabilities |
 | Template | `default` | JSDoc standard HTML template |
 | Output | `docs/api` | Generated doc directory |
 | Plugins | `plugins/markdown` | Renders Markdown in JSDoc comments |
@@ -1352,7 +1416,7 @@ This framework's [Requirements Specification](docs/REQUIREMENTS.md) is **languag
 
 ## Additional Documentation
 
-- **[Requirements Specification](docs/REQUIREMENTS.md)** — Language-agnostic requirements document detailing every capability expected from the framework (187 requirements, traceable to source)
+- **[Requirements Specification](docs/REQUIREMENTS.md)** — Language-agnostic requirements document (v2.0 — 250+ requirements across 24 sections including cloud testing, configuration resolution, API testing, database, visual regression, accessibility, notifications, and test data management)
 - **[API Reference (generated)](docs/api/index.html)** — Auto-generated JSDoc HTML documentation (run `npm run docs:generate` first)
 - **[User Guide](docs/USER_GUIDE.html)** — Comprehensive HTML user guide with detailed walkthroughs, visual examples, and searchable API reference
 - **[Getting Started](docs/GETTING_STARTED.md)** — Step-by-step onboarding guide for new team members

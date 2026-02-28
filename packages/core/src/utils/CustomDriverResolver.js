@@ -278,15 +278,16 @@ class CustomDriverResolver {
      * @returns {Promise<string>} Absolute path to the extracted driver binary
      */
     static async resolve(options = {}) {
-        const hostUrl       = options.hostUrl       || process.env.DRIVER_HOST_URL;
-        const driverName    = options.driverName    || process.env.DRIVER_NAME        || 'edgedriver';
-        const version       = options.version       || process.env.DRIVER_VERSION;
+        const { ConfigResolver } = require('./ConfigResolver');
+        const hostUrl       = options.hostUrl       || ConfigResolver.get('DRIVER_HOST_URL');
+        const driverName    = options.driverName    || ConfigResolver.get('DRIVER_NAME', 'edgedriver');
+        const version       = options.version       || ConfigResolver.get('DRIVER_VERSION');
         const platform      = options.os            || os.platform();
         const arch          = options.arch          || os.arch();
-        const cacheBase     = options.cacheDir      || process.env.DRIVER_CACHE_DIR   || '.cache';
+        const cacheBase     = options.cacheDir      || ConfigResolver.get('DRIVER_CACHE_DIR', '.cache');
         const fileExtension = options.fileExtension || 'zip';
-        const binaryName    = options.binaryName    || process.env.DRIVER_BINARY_NAME || 'msedgedriver';
-        const forceDownload = options.forceDownload || process.env.DRIVER_FORCE_DOWNLOAD === 'true';
+        const binaryName    = options.binaryName    || ConfigResolver.get('DRIVER_BINARY_NAME', 'msedgedriver');
+        const forceDownload = options.forceDownload || ConfigResolver.getBool('DRIVER_FORCE_DOWNLOAD');
 
         // ─── Validation ───────────────────────────────────────
         if (!hostUrl) {

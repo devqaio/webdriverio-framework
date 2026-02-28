@@ -11,6 +11,7 @@
 const path = require('path');
 const fs = require('fs-extra');
 const { Logger } = require('./Logger');
+const { ConfigResolver } = require('./ConfigResolver');
 
 const logger = Logger.getInstance('Reporter');
 
@@ -59,7 +60,7 @@ class CustomReporter {
                 browserVersion: caps.browserVersion,
                 platform: caps.platformName,
                 baseUrl: browser.options.baseUrl,
-                environment: process.env.TEST_ENV || 'unknown',
+                environment: ConfigResolver.get('TEST_ENV', 'unknown'),
                 nodeVersion: process.version,
                 timestamp: new Date().toISOString(),
             };
@@ -73,10 +74,11 @@ class CustomReporter {
      * Write Allure environment.properties file for the environment tab.
      */
     static writeAllureEnvironment(outputDir) {
+        const { ConfigResolver } = require('./ConfigResolver');
         const props = [
-            `Browser=${process.env.BROWSER || 'chrome'}`,
-            `Environment=${process.env.TEST_ENV || 'dev'}`,
-            `BaseURL=${process.env.BASE_URL || 'N/A'}`,
+            `Browser=${ConfigResolver.browser}`,
+            `Environment=${ConfigResolver.getEnv()}`,
+            `BaseURL=${ConfigResolver.baseUrl || 'N/A'}`,
             `NodeVersion=${process.version}`,
             `Platform=${process.platform}`,
             `Date=${new Date().toISOString()}`,
@@ -140,8 +142,8 @@ class CustomReporter {
                     title: 'Run Information',
                     data: [
                         { label: 'Project', value: 'Enterprise Framework' },
-                        { label: 'Environment', value: process.env.TEST_ENV || 'dev' },
-                        { label: 'Browser', value: process.env.BROWSER || 'chrome' },
+                        { label: 'Environment', value: ConfigResolver.get('TEST_ENV', 'dev') },
+                        { label: 'Browser', value: ConfigResolver.browser },
                         { label: 'Execution Date', value: new Date().toLocaleString() },
                         { label: 'Node Version', value: process.version },
                         { label: 'Platform', value: `${process.platform} ${process.arch}` },

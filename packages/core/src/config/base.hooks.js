@@ -23,6 +23,7 @@ const fs = require('fs-extra');
 const { Logger } = require('../utils/Logger');
 const { CustomReporter } = require('../utils/Reporter');
 const { ReportBackupManager } = require('../utils/ReportBackupManager');
+const { ConfigResolver } = require('../utils/ConfigResolver');
 
 /**
  * Create a standard set of WDIO hooks for logging, reporting, and cleanup.
@@ -60,8 +61,8 @@ function createBaseHooks(options = {}) {
         onPrepare(config, capabilities) {
             getLogger().info('════════════════════════════════════════════');
             getLogger().info(' Test Execution Starting');
-            getLogger().info(`  Environment : ${process.env.TEST_ENV || 'dev'}`);
-            getLogger().info(`  Browser     : ${process.env.BROWSER || 'chrome'}`);
+            getLogger().info(`  Environment : ${ConfigResolver.get('TEST_ENV', 'dev')}`);
+            getLogger().info(`  Browser     : ${ConfigResolver.browser}`);
             getLogger().info(`  Base URL    : ${config.baseUrl}`);
             getLogger().info(`  Parallel    : ${config.maxInstances} instance(s)`);
             getLogger().info('════════════════════════════════════════════');
@@ -182,7 +183,7 @@ function createBaseHooks(options = {}) {
                 getLogger().warn(`Cucumber report generation: ${err.message}`);
             }
 
-            if (process.env.REPORT_BACKUP_ENABLE === 'true') {
+            if (ConfigResolver.getBool('REPORT_BACKUP_ENABLE')) {
                 try {
                     const backupManager = new ReportBackupManager({ sourceDir: reportsDir });
                     await backupManager.backup();

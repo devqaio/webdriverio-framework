@@ -21,11 +21,35 @@
  *           return this.byAccessibilityId('username-input');
  *       }
  *   }
+ * @module MobileBasePage
+ * @example
+ * const { MobileBasePage } = require('@wdio-framework/mobile');
+ *
+ * class LoginScreen extends MobileBasePage {
+ *     get usernameInput() { return this.byAccessibilityId('username-input'); }
+ *     get passwordInput() { return this.byAccessibilityId('password-input'); }
+ *     get loginButton()   { return this.byAccessibilityId('login-btn'); }
+ *
+ *     async login(user, pass) {
+ *         await this.tap(this.usernameInput);
+ *         await (await this.usernameInput).setValue(user);
+ *         await (await this.passwordInput).setValue(pass);
+ *         await this.tap(this.loginButton);
+ *     }
+ * }
  * ═══════════════════════════════════════════════════════════════════════
  */
 
 const { AbstractBasePage, Logger, Timeouts } = require('@wdio-framework/core');
 
+/**
+ * Foundation page object for native and hybrid mobile apps.
+ * Extends `AbstractBasePage` with mobile-specific capabilities
+ * for iOS and Android testing via Appium 2.x.
+ *
+ * @class MobileBasePage
+ * @extends AbstractBasePage
+ */
 class MobileBasePage extends AbstractBasePage {
     constructor() {
         super();
@@ -70,7 +94,14 @@ class MobileBasePage extends AbstractBasePage {
 
     /**
      * Locate an element by its accessibility id (cross-platform).
-     * iOS: accessibilityIdentifier   Android: content-desc
+     * iOS: `accessibilityIdentifier`   Android: `content-desc`
+     *
+     * @param {string} id  Accessibility identifier
+     * @returns {WebdriverIO.Element}
+     *
+     * @example
+     * const btn = await this.byAccessibilityId('submit-button');
+     * await btn.click();
      */
     byAccessibilityId(id) {
         return $(`~${id}`);
@@ -78,7 +109,15 @@ class MobileBasePage extends AbstractBasePage {
 
     /**
      * Locate an element using a platform-specific selector.
-     * @param {{ ios: string, android: string }} selectors
+     *
+     * @param {{ ios: string, android: string }} selectors  Platform-keyed selector map
+     * @returns {Promise<WebdriverIO.Element>}
+     *
+     * @example
+     * const el = await this.byPlatform({
+     *     ios: '-ios predicate string:name == "Submit"',
+     *     android: 'android=new UiSelector().text("Submit")',
+     * });
      */
     async byPlatform(selectors) {
         const platform = await this.getPlatform();
@@ -87,17 +126,26 @@ class MobileBasePage extends AbstractBasePage {
         return $(selector);
     }
 
-    /** Android UIAutomator selector. */
+    /** Android UIAutomator selector.
+     * @param {string} expression  UiSelector expression (e.g. `'text("Login")'`)
+     * @returns {WebdriverIO.Element}
+     */
     byAndroidUiAutomator(expression) {
         return $(`android=new UiSelector().${expression}`);
     }
 
-    /** iOS predicate string selector. */
+    /** iOS predicate string selector.
+     * @param {string} predicate  NSPredicate expression
+     * @returns {WebdriverIO.Element}
+     */
     byIosPredicateString(predicate) {
         return $(`-ios predicate string:${predicate}`);
     }
 
-    /** iOS class chain selector. */
+    /** iOS class chain selector.
+     * @param {string} chain  Class chain expression
+     * @returns {WebdriverIO.Element}
+     */
     byIosClassChain(chain) {
         return $(`-ios class chain:${chain}`);
     }
@@ -117,7 +165,9 @@ class MobileBasePage extends AbstractBasePage {
         return browser.getContext();
     }
 
-    /** Switch to NATIVE_APP context. */
+    /** Switch to NATIVE_APP context.
+     * @returns {Promise<void>}
+     */
     async switchToNativeContext() {
         this.logger.debug('Switching to NATIVE_APP context');
         await browser.switchContext('NATIVE_APP');
@@ -142,13 +192,25 @@ class MobileBasePage extends AbstractBasePage {
         this.logger.debug(`Switched to: ${webview}`);
     }
 
-    /** Switch to a specific context by name. */
+    /** Switch to a specific context by name.
+     * @param {string} contextName  Context identifier (e.g. `'WEBVIEW_chrome'`)
+     * @returns {Promise<void>}
+     */
     async switchToContext(contextName) {
         this.logger.debug(`Switching to context: ${contextName}`);
         await browser.switchContext(contextName);
     }
 
-    /** Execute callback in a specific context, then restore original. */
+    /** Execute callback in a specific context, then restore original.
+     * @param {string} contextName  Target context
+     * @param {Function} callback   Async function to execute
+     * @returns {Promise<*>} Return value of the callback
+     *
+     * @example
+     * const title = await this.withinContext('WEBVIEW_chrome', async () => {
+     *     return browser.getTitle();
+     * });
+     */
     async withinContext(contextName, callback) {
         const original = await this.getCurrentContext();
         try {
@@ -161,13 +223,19 @@ class MobileBasePage extends AbstractBasePage {
 
     // ─── Touch / Gesture Actions ──────────────────────────────
 
-    /** Perform a single tap on an element. */
+    /** Perform a single tap on an element.
+     * @param {string|WebdriverIO.Element} element  Selector or element
+     * @returns {Promise<void>}
+     */
     async tap(element) {
         const el = await this._resolveElement(element);
         await el.click();
     }
 
-    /** Perform a double-tap on an element. */
+    /** Perform a double-tap on an element.
+     * @param {string|WebdriverIO.Element} element  Selector or element
+     * @returns {Promise<void>}
+     */
     async doubleTap(element) {
         const el = await this._resolveElement(element);
         await el.doubleClick();
@@ -204,7 +272,10 @@ class MobileBasePage extends AbstractBasePage {
             .perform();
     }
 
-    /** Swipe up on the screen (scroll down). */
+    /** Swipe up on the screen (scroll down).
+     * @param {number} [percentage=0.75]  Fraction of screen height to swipe
+     * @returns {Promise<void>}
+     */
     async swipeUp(percentage = 0.75) {
         const { width, height } = await browser.getWindowSize();
         const anchor = Math.floor(width / 2);
@@ -213,7 +284,10 @@ class MobileBasePage extends AbstractBasePage {
         await this.swipe({ x: anchor, y: startY }, { x: anchor, y: endY });
     }
 
-    /** Swipe down on the screen (scroll up). */
+    /** Swipe down on the screen (scroll up).
+     * @param {number} [percentage=0.75]  Fraction of screen height
+     * @returns {Promise<void>}
+     */
     async swipeDown(percentage = 0.75) {
         const { width, height } = await browser.getWindowSize();
         const anchor = Math.floor(width / 2);
@@ -222,7 +296,10 @@ class MobileBasePage extends AbstractBasePage {
         await this.swipe({ x: anchor, y: startY }, { x: anchor, y: endY });
     }
 
-    /** Swipe left (scrolls content to the right). */
+    /** Swipe left (scrolls content to the right).
+     * @param {number} [percentage=0.75]  Fraction of screen width
+     * @returns {Promise<void>}
+     */
     async swipeLeft(percentage = 0.75) {
         const { width, height } = await browser.getWindowSize();
         const anchor = Math.floor(height / 2);
@@ -231,7 +308,10 @@ class MobileBasePage extends AbstractBasePage {
         await this.swipe({ x: startX, y: anchor }, { x: endX, y: anchor });
     }
 
-    /** Swipe right (scrolls content to the left). */
+    /** Swipe right (scrolls content to the left).
+     * @param {number} [percentage=0.75]  Fraction of screen width
+     * @returns {Promise<void>}
+     */
     async swipeRight(percentage = 0.75) {
         const { width, height } = await browser.getWindowSize();
         const anchor = Math.floor(height / 2);
@@ -240,7 +320,12 @@ class MobileBasePage extends AbstractBasePage {
         await this.swipe({ x: startX, y: anchor }, { x: endX, y: anchor });
     }
 
-    /** Swipe an element in a given direction. */
+    /** Swipe an element in a given direction.
+     * @param {string|WebdriverIO.Element} element  Selector or element
+     * @param {string} direction  `'up'` | `'down'` | `'left'` | `'right'`
+     * @param {number} [percentage=0.5]  Fraction of element size
+     * @returns {Promise<void>}
+     */
     async swipeElement(element, direction, percentage = 0.5) {
         const el = await this._resolveElement(element);
         const location = await el.getLocation();
@@ -291,7 +376,10 @@ class MobileBasePage extends AbstractBasePage {
         throw new Error(`Element "${selector}" not found after ${maxScrolls} scroll(s)`);
     }
 
-    /** Pinch gesture (zoom out) centred on an element or screen centre. */
+    /** Pinch gesture (zoom out) centred on an element or screen centre.
+     * @param {string|WebdriverIO.Element} [element]  Optional target element
+     * @returns {Promise<void>}
+     */
     async pinch(element) {
         const el = element ? await this._resolveElement(element) : null;
         const { width, height } = await browser.getWindowSize();
@@ -322,7 +410,10 @@ class MobileBasePage extends AbstractBasePage {
         await browser.releaseActions();
     }
 
-    /** Zoom gesture (spread / zoom in) centred on an element or screen centre. */
+    /** Zoom gesture (spread / zoom in) centred on an element or screen centre.
+     * @param {string|WebdriverIO.Element} [element]  Optional target element
+     * @returns {Promise<void>}
+     */
     async zoom(element) {
         const el = element ? await this._resolveElement(element) : null;
         const { width, height } = await browser.getWindowSize();
@@ -353,7 +444,11 @@ class MobileBasePage extends AbstractBasePage {
         await browser.releaseActions();
     }
 
-    /** Drag and drop between two points using touch. */
+    /** Drag and drop between two points using touch.
+     * @param {string|WebdriverIO.Element} sourceElement  Element to drag
+     * @param {string|WebdriverIO.Element} targetElement  Drop target
+     * @returns {Promise<void>}
+     */
     async touchDragAndDrop(sourceElement, targetElement) {
         const source = await this._resolveElement(sourceElement);
         const target = await this._resolveElement(targetElement);
@@ -384,12 +479,15 @@ class MobileBasePage extends AbstractBasePage {
 
     // ─── Device Orientation ───────────────────────────────────
 
-    /** Get the current device orientation. @returns {Promise<string>} */
+    /** Get the current device orientation. @returns {Promise<string>} `'PORTRAIT'` or `'LANDSCAPE'` */
     async getOrientation() {
         return browser.getOrientation();
     }
 
-    /** Set the device orientation. @param {'PORTRAIT'|'LANDSCAPE'} orientation */
+    /** Set the device orientation.
+     * @param {'PORTRAIT'|'LANDSCAPE'} orientation  Target orientation
+     * @returns {Promise<void>}
+     */
     async setOrientation(orientation) {
         this.logger.debug(`Setting orientation: ${orientation}`);
         await browser.setOrientation(orientation.toUpperCase());
@@ -434,30 +532,51 @@ class MobileBasePage extends AbstractBasePage {
         }
     }
 
-    /** Close (terminate) the current app (Appium 2.x). */
+    /** Close (terminate) the current app (Appium 2.x).
+     * @param {string} [bundleId]  App bundle/package ID
+     * @returns {Promise<void>}
+     */
     async closeApp(bundleId) {
         const appId = bundleId || await this._getAppBundleId();
         this.logger.debug(`Closing app: ${appId}`);
         await browser.terminateApp(appId);
     }
 
-    /** Launch / re-launch the app under test (Appium 2.x). */
+    /** Launch / re-launch the app under test (Appium 2.x).
+     * @param {string} [bundleId]  App bundle/package ID
+     * @returns {Promise<void>}
+     */
     async launchApp(bundleId) {
         const appId = bundleId || await this._getAppBundleId();
         this.logger.debug(`Launching app: ${appId}`);
         await browser.activateApp(appId);
     }
 
+    /**
+     * Install an app onto the device.
+     * @param {string} appPath  Local or remote path to the .apk/.ipa
+     * @returns {Promise<void>}
+     */
     async installApp(appPath) {
         this.logger.debug(`Installing app: ${appPath}`);
         await browser.installApp(appPath);
     }
 
+    /**
+     * Remove (uninstall) an app from the device.
+     * @param {string} bundleId  App bundle/package ID
+     * @returns {Promise<void>}
+     */
     async removeApp(bundleId) {
         this.logger.debug(`Removing app: ${bundleId}`);
         await browser.removeApp(bundleId);
     }
 
+    /**
+     * Check whether an app is installed on the device.
+     * @param {string} bundleId  App bundle/package ID
+     * @returns {Promise<boolean>}
+     */
     async isAppInstalled(bundleId) {
         return browser.isAppInstalled(bundleId);
     }
@@ -549,7 +668,13 @@ class MobileBasePage extends AbstractBasePage {
         }
     }
 
-    /** Open a deep link URL. @param {string} url e.g. 'myapp://product/123' */
+    /** Open a deep link URL.
+     * @param {string} url  Deep link (e.g. `'myapp://product/123'`)
+     * @returns {Promise<void>}
+     *
+     * @example
+     * await this.openDeepLink('myapp://product/42');
+     */
     async openDeepLink(url) {
         this.logger.debug(`Opening deep link: ${url}`);
         await browser.url(url);
@@ -614,7 +739,10 @@ class MobileBasePage extends AbstractBasePage {
         catch (err) { this.logger.warn(`dismissAlert: ${err.message}`); }
     }
 
-    /** Take a screenshot with platform-optimised naming. */
+    /** Take a screenshot with platform-optimised naming.
+     * @param {string} name  Descriptive label
+     * @returns {Promise<string>} File path of the saved screenshot
+     */
     async takeScreenshot(name) {
         const platform = await this.getPlatform();
         const safeFileName = `${platform}_${name}_${Date.now()}`;

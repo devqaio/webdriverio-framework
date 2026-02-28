@@ -18,7 +18,9 @@
 require('dotenv').config();
 
 const path = require('path');
-const { createBaseHooks, Logger } = require('@wdio-framework/core');
+const { createBaseHooks, Logger, ConfigResolver } = require('@wdio-framework/core');
+
+ConfigResolver.init();
 const { resolveWebCapabilities } = require('./capabilities');
 
 const ROOT = process.cwd();
@@ -33,33 +35,33 @@ const webConfig = {
     runner: 'local',
 
     // ─── Grid / Server (leave empty for local) ────────────────
-    hostname: process.env.SELENIUM_HUB_HOST || undefined,
-    port: process.env.SELENIUM_HUB_PORT ? parseInt(process.env.SELENIUM_HUB_PORT) : undefined,
-    path: process.env.SELENIUM_HUB_PATH || undefined,
+    hostname: ConfigResolver.get('SELENIUM_HUB_HOST') || undefined,
+    port: ConfigResolver.get('SELENIUM_HUB_PORT') ? ConfigResolver.getInt('SELENIUM_HUB_PORT') : undefined,
+    path: ConfigResolver.get('SELENIUM_HUB_PATH') || undefined,
 
     // ─── Test Files ───────────────────────────────────────────
     specs: [path.join(ROOT, 'test', 'features', '**', '*.feature')],
     exclude: [],
 
     // ─── Parallel Execution ───────────────────────────────────
-    maxInstances: parseInt(process.env.MAX_INSTANCES, 10) || 5,
+    maxInstances: ConfigResolver.getInt('MAX_INSTANCES', 5),
 
     // ─── Capabilities ─────────────────────────────────────────
     capabilities: [
         {
-            maxInstances: parseInt(process.env.MAX_INSTANCES, 10) || 5,
-            ...resolveWebCapabilities(process.env.BROWSER || 'chrome'),
+            maxInstances: ConfigResolver.getInt('MAX_INSTANCES', 5),
+            ...resolveWebCapabilities(ConfigResolver.browser),
         },
     ],
 
     // ─── Log Level ────────────────────────────────────────────
-    logLevel: process.env.LOG_LEVEL || 'warn',
+    logLevel: ConfigResolver.get('LOG_LEVEL', 'warn'),
     outputDir: path.join(ROOT, 'logs'),
 
     // ─── Defaults ─────────────────────────────────────────────
     bail: 0,
-    baseUrl: process.env.BASE_URL || 'https://example.com',
-    waitforTimeout: parseInt(process.env.TIMEOUT_IMPLICIT, 10) || 15000,
+    baseUrl: ConfigResolver.get('BASE_URL', 'https://example.com'),
+    waitforTimeout: ConfigResolver.getInt('TIMEOUT_IMPLICIT', 15000),
     connectionRetryTimeout: 120000,
     connectionRetryCount: 3,
 
@@ -75,13 +77,13 @@ const webConfig = {
         snippets: true,
         source: true,
         strict: true,
-        tagExpression: process.env.TAG_EXPRESSION || '',
+        tagExpression: ConfigResolver.get('TAG_EXPRESSION', ''),
         timeout: 120000,
-        retry: parseInt(process.env.RETRY_COUNT, 10) || 1,
+        retry: ConfigResolver.getInt('RETRY_COUNT', 1),
     },
 
     // ─── Spec Retries ─────────────────────────────────────────
-    specFileRetries: parseInt(process.env.SPEC_FILE_RETRIES, 10) || 0,
+    specFileRetries: ConfigResolver.getInt('SPEC_FILE_RETRIES', 0),
     specFileRetriesDelay: 0,
     specFileRetriesDeferred: false,
 

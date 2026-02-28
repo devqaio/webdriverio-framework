@@ -1,0 +1,11 @@
+{
+  "_meta": {
+    "description": "DOCKER environment overrides. Keys defined here override defaults.config.json. Environment variables still take highest precedence."
+  },
+
+  "SELENIUM_HUB_HOST": "selenium-hub",
+  "SELENIUM_HUB_PORT": "4444",
+  "SELENIUM_HUB_PATH": "/wd/hub",
+  "HEADLESS": "true",
+  "LOG_LEVEL": "warn"
+}

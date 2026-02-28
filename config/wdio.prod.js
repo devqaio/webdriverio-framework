@@ -6,14 +6,15 @@
 
 const { config } = require('./wdio.conf');
 const { deepMerge } = require('./helpers/configHelper');
+const { ConfigResolver } = require('@wdio-framework/core');
 
 const prodConfig = deepMerge(config, {
-    baseUrl: process.env.BASE_URL_PROD || 'https://www.example.com',
-    logLevel: 'error',
+    baseUrl: ConfigResolver.baseUrl,
+    logLevel: ConfigResolver.logLevel,
     bail: 1,           // Stop on first failure in production
     cucumberOpts: {
-        tagExpression: process.env.TAG_EXPRESSION || '@smoke',
-        retry: 0,      // No retries in production
+        tagExpression: ConfigResolver.get('TAG_EXPRESSION', '@smoke'),
+        retry: ConfigResolver.getInt('RETRY_COUNT', 0),
     },
 });
 

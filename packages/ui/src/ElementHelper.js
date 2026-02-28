@@ -4,12 +4,28 @@
  * ═══════════════════════════════════════════════════════════════
  *
  * Static utility methods that provide safe, retry-aware element
- * operations on top of WebdriverIO's built-in API.  Designed to
+ * operations on top of WebdriverIO’s built-in API.  Designed to
  * be imported anywhere without instantiation.
  *
  * Includes shadow DOM and iframe awareness — when an element is
  * not found in the regular DOM, helpers automatically delegate to
- * ShadowDomResolver and FrameManager for transparent resolution.
+ * {@link ShadowDomResolver} and {@link FrameManager} for transparent resolution.
+ *
+ * @module ElementHelper
+ * @example
+ * const { ElementHelper } = require('@wdio-framework/ui');
+ *
+ * // Smart resolve (standard → shadow DOM → iframe fallback)
+ * const el = await ElementHelper.resolve('button.submit');
+ *
+ * // Safe click with automatic retry on stale element
+ * await ElementHelper.safeClick('button.submit');
+ *
+ * // Wait for text to match
+ * await ElementHelper.waitForTextToBe('.status', 'Complete');
+ *
+ * // Get text from all matching elements
+ * const items = await ElementHelper.getTextFromAll('.list-item');
  */
 
 const { Timeouts, Logger } = require('@wdio-framework/core');
@@ -20,6 +36,12 @@ const logger = Logger.getInstance('ElementHelper');
 const shadowResolver = new ShadowDomResolver();
 const frameManager = new FrameManager();
 
+/**
+ * Static utility class providing safe, retry-aware element interactions
+ * with automatic shadow DOM and iframe fallback resolution.
+ *
+ * @class ElementHelper
+ */
 class ElementHelper {
 
     /**
@@ -65,6 +87,17 @@ class ElementHelper {
     /**
      * Safely click with automatic retry on stale / intercept errors.
      * Re-resolves the element on each attempt to handle DOM re-renders.
+     *
+     * @param {string|WebdriverIO.Element} element  CSS selector or element reference
+     * @param {Object} [options]
+     * @param {number} [options.retries=3]  Maximum retry attempts
+     * @param {number} [options.timeout]    Wait timeout per attempt (defaults to `Timeouts.ELEMENT_WAIT`)
+     * @returns {Promise<void>}
+     * @throws {Error} If the click fails after all retries
+     *
+     * @example
+     * await ElementHelper.safeClick('button.submit');
+     * await ElementHelper.safeClick('#save-btn', { retries: 5, timeout: 10000 });
      */
     static async safeClick(element, { retries = 3, timeout = Timeouts.ELEMENT_WAIT } = {}) {
         for (let attempt = 1; attempt <= retries; attempt++) {
@@ -84,6 +117,16 @@ class ElementHelper {
     /**
      * Safely set a value with retry logic.
      * Re-resolves the element on each attempt to handle DOM re-renders.
+     *
+     * @param {string|WebdriverIO.Element} element  CSS selector or element reference
+     * @param {string} value  The value to type into the input
+     * @param {Object} [options]
+     * @param {number} [options.retries=3]  Maximum retry attempts
+     * @param {number} [options.timeout]    Wait timeout per attempt
+     * @returns {Promise<void>}
+     *
+     * @example
+     * await ElementHelper.safeSetValue('#email', 'user@example.com');
      */
     static async safeSetValue(element, value, { retries = 3, timeout = Timeouts.ELEMENT_WAIT } = {}) {
         for (let attempt = 1; attempt <= retries; attempt++) {
@@ -104,6 +147,15 @@ class ElementHelper {
     /**
      * Safely get text with retry logic.
      * Re-resolves the element on each attempt to handle DOM re-renders.
+     *
+     * @param {string|WebdriverIO.Element} element  CSS selector or element reference
+     * @param {Object} [options]
+     * @param {number} [options.retries=3]  Maximum retry attempts
+     * @param {number} [options.timeout]    Wait timeout per attempt
+     * @returns {Promise<string>} The element’s visible text content
+     *
+     * @example
+     * const message = await ElementHelper.safeGetText('.alert-message');
      */
     static async safeGetText(element, { retries = 3, timeout = Timeouts.ELEMENT_WAIT } = {}) {
         for (let attempt = 1; attempt <= retries; attempt++) {
@@ -122,6 +174,15 @@ class ElementHelper {
     /**
      * Wait for text in an element to match a given value.
      * Resolves the element inside the waitUntil to handle re-renders gracefully.
+     *
+     * @param {string|WebdriverIO.Element} element  CSS selector or element reference
+     * @param {string} expectedText  Exact text to match (trimmed comparison)
+     * @param {number} [timeout]     Max wait in ms (defaults to `Timeouts.ELEMENT_WAIT`)
+     * @returns {Promise<void>}
+     * @throws {Error} If text does not match within the timeout
+     *
+     * @example
+     * await ElementHelper.waitForTextToBe('.status-badge', 'Approved');
      */
     static async waitForTextToBe(element, expectedText, timeout = Timeouts.ELEMENT_WAIT) {
         await browser.waitUntil(
@@ -137,6 +198,11 @@ class ElementHelper {
     /**
      * Wait until the text of an element contains a substring.
      * Resolves the element inside the waitUntil to handle re-renders gracefully.
+     *
+     * @param {string|WebdriverIO.Element} element      CSS selector or element reference
+     * @param {string} partialText   Substring to search for
+     * @param {number} [timeout]     Max wait in ms
+     * @returns {Promise<void>}
      */
     static async waitForTextContains(element, partialText, timeout = Timeouts.ELEMENT_WAIT) {
         await browser.waitUntil(
@@ -152,6 +218,15 @@ class ElementHelper {
     /**
      * Wait until an attribute of an element equals a given value.
      * Resolves the element inside the waitUntil to handle re-renders gracefully.
+     *
+     * @param {string|WebdriverIO.Element} element        CSS selector or element
+     * @param {string} attrName       Attribute name (e.g. `'class'`, `'aria-expanded'`)
+     * @param {string} expectedValue  Expected attribute value
+     * @param {number} [timeout]      Max wait in ms
+     * @returns {Promise<void>}
+     *
+     * @example
+     * await ElementHelper.waitForAttributeToBe('.dropdown', 'aria-expanded', 'true');
      */
     static async waitForAttributeToBe(element, attrName, expectedValue, timeout = Timeouts.ELEMENT_WAIT) {
         await browser.waitUntil(
@@ -166,6 +241,9 @@ class ElementHelper {
 
     /**
      * Return all visible (displayed) elements matching a selector.
+     *
+     * @param {string} selector  CSS selector
+     * @returns {Promise<WebdriverIO.Element[]>} Array of displayed elements
      */
     static async getVisibleElements(selector) {
         const elements = await $$(selector);
@@ -178,6 +256,13 @@ class ElementHelper {
 
     /**
      * Get an array of text values from all matching elements.
+     *
+     * @param {string} selector  CSS selector
+     * @returns {Promise<string[]>} Array of text values
+     *
+     * @example
+     * const items = await ElementHelper.getTextFromAll('.product-name');
+     * // ['Widget A', 'Widget B', 'Widget C']
      */
     static async getTextFromAll(selector) {
         const elements = await $$(selector);
@@ -190,6 +275,14 @@ class ElementHelper {
 
     /**
      * Click the first element in a list that contains the given text.
+     *
+     * @param {string} selector  CSS selector matching multiple elements
+     * @param {string} text      Exact text to match (trimmed)
+     * @returns {Promise<void>}
+     * @throws {Error} If no element with matching text is found
+     *
+     * @example
+     * await ElementHelper.clickElementByText('.menu-item', 'Settings');
      */
     static async clickElementByText(selector, text) {
         const elements = await $$(selector);
@@ -205,6 +298,10 @@ class ElementHelper {
 
     /**
      * Check if any element matching a selector contains the given text.
+     *
+     * @param {string} selector  CSS selector
+     * @param {string} text      Text substring to search for
+     * @returns {Promise<boolean>}
      */
     static async isTextPresentInAny(selector, text) {
         const elements = await $$(selector);
@@ -217,6 +314,9 @@ class ElementHelper {
 
     /**
      * Count visible elements matching a selector.
+     *
+     * @param {string} selector  CSS selector
+     * @returns {Promise<number>}
      */
     static async countVisibleElements(selector) {
         const visible = await ElementHelper.getVisibleElements(selector);
@@ -224,7 +324,16 @@ class ElementHelper {
     }
 
     /**
-     * Wait until a specific number of elements exist.
+     * Wait until a specific number of elements exist in the DOM.
+     *
+     * @param {string} selector        CSS selector
+     * @param {number} expectedCount   Expected number of elements
+     * @param {number} [timeout]       Max wait in ms
+     * @returns {Promise<void>}
+     *
+     * @example
+     * // Wait until exactly 5 table rows exist
+     * await ElementHelper.waitForElementCount('table tbody tr', 5);
      */
     static async waitForElementCount(selector, expectedCount, timeout = Timeouts.ELEMENT_WAIT) {
         await browser.waitUntil(

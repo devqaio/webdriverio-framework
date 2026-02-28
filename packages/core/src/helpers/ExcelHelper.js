@@ -21,7 +21,8 @@
  *   const { ExcelHelper } = require('@wdio-framework/core');
  *   const data  = ExcelHelper.readSheet('test/data/testData.xlsx', 'LoginTests');
  *   const rows  = ExcelHelper.getFilteredRows('test/data/testData.xlsx', 'LoginTests', { execute: 'Y' });
- * ═══════════════════════════════════════════════════════════════════════
+ *
+ * @module ExcelHelper
  */
 
 const path = require('path');
@@ -70,6 +71,12 @@ function _invalidateCache(absPath) {
     _workbookCache.delete(absPath);
 }
 
+/**
+ * Static utility class for reading and writing Excel (.xlsx) workbooks.
+ * Enables non-technical stakeholders to maintain test data in spreadsheets.
+ *
+ * @class ExcelHelper
+ */
 class ExcelHelper {
     // ─── Read Operations ──────────────────────────────────────
 

@@ -15,13 +15,14 @@
 const { deepMerge } = require('./helpers/configHelper');
 const baseConfig = require('./wdio.conf').config;
 const { resolveCapabilities } = require('./capabilities');
+const { ConfigResolver } = require('@wdio-framework/core');
 
-const platform = (process.env.BROWSER || 'android').toLowerCase();
+const platform = ConfigResolver.get('MOBILE_PLATFORM') || ConfigResolver.browser;
 
 exports.config = deepMerge(baseConfig, {
     // ─── Appium Server ────────────────────────────────────────
-    hostname: process.env.APPIUM_HOST || '127.0.0.1',
-    port: parseInt(process.env.APPIUM_PORT, 10) || 4723,
+    hostname: ConfigResolver.get('APPIUM_HOST', '127.0.0.1'),
+    port: ConfigResolver.getInt('APPIUM_PORT', 4723),
     path: '/',
 
     // ─── Capabilities ─────────────────────────────────────────
@@ -41,7 +42,7 @@ exports.config = deepMerge(baseConfig, {
                 args: {
                     relaxedSecurity: true,
                     address: '127.0.0.1',
-                    port: parseInt(process.env.APPIUM_PORT, 10) || 4723,
+                    port: ConfigResolver.getInt('APPIUM_PORT', 4723),
                 },
             },
         ],

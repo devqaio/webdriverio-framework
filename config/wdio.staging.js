@@ -6,12 +6,13 @@
 
 const { config } = require('./wdio.conf');
 const { deepMerge } = require('./helpers/configHelper');
+const { ConfigResolver } = require('@wdio-framework/core');
 
 const stagingConfig = deepMerge(config, {
-    baseUrl: process.env.BASE_URL_STAGING || 'https://staging.example.com',
-    logLevel: 'warn',
+    baseUrl: ConfigResolver.baseUrl,
+    logLevel: ConfigResolver.logLevel,
     cucumberOpts: {
-        tagExpression: process.env.TAG_EXPRESSION || '@smoke or @regression',
+        tagExpression: ConfigResolver.get('TAG_EXPRESSION', '@smoke or @regression'),
     },
 });
 

@@ -4,18 +4,21 @@
  * ═══════════════════════════════════════════════════════════════
  *
  * All timeout values used across the framework are defined here.
- * Override via environment variables where needed.
+ * Overridable via the three-tier config system:
+ *   env_var > env_config > default config
  */
+
+const { ConfigResolver } = require('../utils/ConfigResolver');
 
 const Timeouts = Object.freeze({
     /** Default wait for a single element to appear / become interactive */
-    ELEMENT_WAIT: parseInt(process.env.TIMEOUT_IMPLICIT, 10) || 15000,
+    get ELEMENT_WAIT() { return ConfigResolver.getInt('TIMEOUT_IMPLICIT', 15000); },
 
     /** Page load timeout */
-    PAGE_LOAD: parseInt(process.env.TIMEOUT_PAGE_LOAD, 10) || 30000,
+    get PAGE_LOAD() { return ConfigResolver.getInt('TIMEOUT_PAGE_LOAD', 30000); },
 
     /** Script execution timeout */
-    SCRIPT: parseInt(process.env.TIMEOUT_SCRIPT, 10) || 30000,
+    get SCRIPT() { return ConfigResolver.getInt('TIMEOUT_SCRIPT', 30000); },
 
     /** Short wait for quick transitions / animations */
     SHORT: 5000,

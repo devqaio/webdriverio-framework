@@ -43,20 +43,20 @@ class ReportBackupManager {
      * @param {string}  [options.projectName]    Project name for folder naming
      */
     constructor(options = {}) {
+        const { ConfigResolver } = require('./ConfigResolver');
         this.sourceDir = path.resolve(
-            options.sourceDir || process.env.REPORT_SOURCE_DIR || 'reports',
+            options.sourceDir || ConfigResolver.get('REPORT_SOURCE_DIR', 'reports'),
         );
         this.backupPath =
             options.backupPath ||
-            process.env.REPORT_BACKUP_PATH ||
-            '';
+            ConfigResolver.get('REPORT_BACKUP_PATH');
         this.enabled =
             options.enabled !== undefined
                 ? options.enabled
-                : process.env.REPORT_BACKUP_ENABLE === 'true';
-        this.keepLastN = options.keepLastN || parseInt(process.env.REPORT_BACKUP_KEEP, 10) || 30;
-        this.compress = options.compress || process.env.REPORT_BACKUP_COMPRESS === 'true';
-        this.projectName = options.projectName || process.env.PROJECT_NAME || 'wdio-tests';
+                : ConfigResolver.getBool('REPORT_BACKUP_ENABLE');
+        this.keepLastN = options.keepLastN || ConfigResolver.getInt('REPORT_BACKUP_KEEP', 30);
+        this.compress = options.compress || ConfigResolver.getBool('REPORT_BACKUP_COMPRESS');
+        this.projectName = options.projectName || ConfigResolver.get('PROJECT_NAME', 'wdio-tests');
     }
 
     // ─── Public API ───────────────────────────────────────────

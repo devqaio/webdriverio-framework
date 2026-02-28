@@ -18,15 +18,32 @@
  * some drivers.  This module adds a robust JS-based fallback that
  * works with every WebDriver-compatible browser and Appium.
  *
- * Usage (typically consumed by BasePage._resolveElement):
- *   const resolver = new ShadowDomResolver();
- *   const el = await resolver.findInShadowDom('my-component >>> .btn');
- *   const el = await resolver.deepFindElement('.btn-primary');
+ * @module ShadowDomResolver
+ * @example
+ * const { ShadowDomResolver } = require('@wdio-framework/ui');
+ * const resolver = new ShadowDomResolver();
+ *
+ * // Deep selector with >>> combinator
+ * const btn = await resolver.findInShadowDom('my-component >>> .btn');
+ *
+ * // Exhaustive search across all shadow roots
+ * const el = await resolver.deepFindElement('.btn-primary');
+ *
+ * // Check if page has shadow DOM
+ * if (await resolver.hasShadowDom()) {
+ *     const count = await resolver.countShadowRoots();
+ * }
  * ═══════════════════════════════════════════════════════════════════════
  */
 
 const { Logger } = require('@wdio-framework/core');
 
+/**
+ * Resolves elements within Shadow DOM boundaries using JS-based
+ * traversal for cross-browser compatibility.
+ *
+ * @class ShadowDomResolver
+ */
 class ShadowDomResolver {
     constructor() {
         this.logger = Logger.getInstance('ShadowDomResolver');

@@ -29,8 +29,18 @@ const getArg = (name) => {
 };
 
 const matrixPath = getArg('matrix') || process.env.EXECUTION_MATRIX || '';
-const env = getArg('env') || process.env.TEST_ENV || '';
-const browserArg = getArg('browser') || process.env.BROWSER || '';
+
+let _env, _browser;
+try {
+    const { ConfigResolver } = require('@wdio-framework/core');
+    _env = getArg('env') || ConfigResolver.get('TEST_ENV', '');
+    _browser = getArg('browser') || ConfigResolver.browser || '';
+} catch {
+    _env = getArg('env') || process.env.TEST_ENV || '';
+    _browser = getArg('browser') || process.env.BROWSER || '';
+}
+const env = _env;
+const browserArg = _browser;
 const configPath = getArg('config') || 'config/wdio.conf.js';
 
 console.log('═══════════════════════════════════════════════');

@@ -15,56 +15,74 @@
 
 ## Table of Contents
 
-- [1. Purpose & Scope](#1-purpose--scope)
-- [2. Glossary](#2-glossary)
-- [3. Architectural Requirements](#3-architectural-requirements)
-- [4. Modular Package Structure](#4-modular-package-structure)
-- [5. Core Module Requirements](#5-core-module-requirements)
-  - [5.1 Abstract Base Page Object](#51-abstract-base-page-object)
-  - [5.2 Logging](#52-logging)
-  - [5.3 Retry & Resilience](#53-retry--resilience)
-  - [5.4 Screenshot Management](#54-screenshot-management)
-  - [5.5 Performance Tracking](#55-performance-tracking)
-  - [5.6 Report Backup](#56-report-backup)
-  - [5.7 Custom Driver Resolution](#57-custom-driver-resolution)
-  - [5.8 Reporting](#58-reporting)
-- [6. Helper Module Requirements](#6-helper-module-requirements)
-  - [6.1 API / HTTP Client](#61-api--http-client)
-  - [6.2 Test Data Generation](#62-test-data-generation)
-  - [6.3 File I/O](#63-file-io)
-  - [6.4 Date & Time](#64-date--time)
-  - [6.5 String Utilities](#65-string-utilities)
-  - [6.6 Encryption & Secrets](#66-encryption--secrets)
-  - [6.7 Excel / Spreadsheet](#67-excel--spreadsheet)
-  - [6.8 Data-Driven Manager](#68-data-driven-manager)
-  - [6.9 Feature / Test Generation](#69-feature--test-generation)
-  - [6.10 Test Execution Filter](#610-test-execution-filter)
-- [7. Constants & Configuration](#7-constants--configuration)
-  - [7.1 Timeouts](#71-timeouts)
-  - [7.2 Environments](#72-environments)
-  - [7.3 Messages & Labels](#73-messages--labels)
-- [8. Web / Browser UI Module Requirements](#8-web--browser-ui-module-requirements)
-  - [8.1 Web Base Page Object](#81-web-base-page-object)
-  - [8.2 Reusable UI Component](#82-reusable-ui-component)
-  - [8.3 Browser Manager](#83-browser-manager)
-  - [8.4 Element Helper](#84-element-helper)
-  - [8.5 Shadow DOM Resolver](#85-shadow-dom-resolver)
-  - [8.6 Frame Manager](#86-frame-manager)
-  - [8.7 Web Capability Factories](#87-web-capability-factories)
-  - [8.8 Web Configuration Template](#88-web-configuration-template)
-- [9. Mobile Module Requirements](#9-mobile-module-requirements)
-  - [9.1 Mobile Base Page Object](#91-mobile-base-page-object)
-  - [9.2 Mobile Capability Factories](#92-mobile-capability-factories)
-  - [9.3 Mobile Configuration Template](#93-mobile-configuration-template)
-- [10. Lifecycle Hook Factory](#10-lifecycle-hook-factory)
-- [11. BDD / Gherkin Integration](#11-bdd--gherkin-integration)
-- [12. Environment & Configuration Management](#12-environment--configuration-management)
-- [13. CI/CD & Containerisation](#13-cicd--containerisation)
-- [14. Documentation Generation](#14-documentation-generation)
-- [15. Cross-Cutting Concerns](#15-cross-cutting-concerns)
-- [16. Non-Functional Requirements](#16-non-functional-requirements)
-- [Appendix A — Environment Variables](#appendix-a--environment-variables)
-- [Appendix B — Traceability Matrix](#appendix-b--traceability-matrix)
+- [Test Automation Framework — Requirements Specification](#test-automation-framework--requirements-specification)
+  - [Table of Contents](#table-of-contents)
+  - [1. Purpose \& Scope](#1-purpose--scope)
+    - [1.1 Purpose](#11-purpose)
+    - [1.2 Scope](#12-scope)
+    - [1.3 Stakeholders](#13-stakeholders)
+  - [2. Glossary](#2-glossary)
+  - [3. Architectural Requirements](#3-architectural-requirements)
+  - [4. Modular Package Structure](#4-modular-package-structure)
+  - [5. Core Module Requirements](#5-core-module-requirements)
+    - [5.1 Abstract Base Page Object](#51-abstract-base-page-object)
+    - [5.2 Logging](#52-logging)
+    - [5.3 Retry \& Resilience](#53-retry--resilience)
+    - [5.4 Screenshot Management](#54-screenshot-management)
+    - [5.5 Performance Tracking](#55-performance-tracking)
+    - [5.6 Report Backup](#56-report-backup)
+    - [5.7 Custom Driver Resolution](#57-custom-driver-resolution)
+    - [5.8 Reporting](#58-reporting)
+  - [6. Helper Module Requirements](#6-helper-module-requirements)
+    - [6.1 API / HTTP Client](#61-api--http-client)
+    - [6.2 Test Data Generation](#62-test-data-generation)
+    - [6.3 File I/O](#63-file-io)
+    - [6.4 Date \& Time](#64-date--time)
+    - [6.5 String Utilities](#65-string-utilities)
+    - [6.6 Encryption \& Secrets](#66-encryption--secrets)
+    - [6.7 Excel / Spreadsheet](#67-excel--spreadsheet)
+    - [6.8 Data-Driven Manager](#68-data-driven-manager)
+    - [6.9 Feature / Test Generation](#69-feature--test-generation)
+    - [6.10 Test Execution Filter](#610-test-execution-filter)
+  - [7. Constants \& Configuration](#7-constants--configuration)
+    - [7.1 Timeouts](#71-timeouts)
+    - [7.2 Environments](#72-environments)
+    - [7.3 Messages \& Labels](#73-messages--labels)
+  - [8. Web / Browser UI Module Requirements](#8-web--browser-ui-module-requirements)
+    - [8.1 Web Base Page Object](#81-web-base-page-object)
+    - [8.2 Reusable UI Component](#82-reusable-ui-component)
+    - [8.3 Browser Manager](#83-browser-manager)
+    - [8.4 Element Helper](#84-element-helper)
+    - [8.5 Shadow DOM Resolver](#85-shadow-dom-resolver)
+    - [8.6 Frame Manager](#86-frame-manager)
+    - [8.7 Web Capability Factories](#87-web-capability-factories)
+    - [8.8 Web Configuration Template](#88-web-configuration-template)
+  - [9. Mobile Module Requirements](#9-mobile-module-requirements)
+    - [9.1 Mobile Base Page Object](#91-mobile-base-page-object)
+    - [9.2 Mobile Capability Factories](#92-mobile-capability-factories)
+    - [9.3 Mobile Configuration Template](#93-mobile-configuration-template)
+  - [10. Lifecycle Hook Factory](#10-lifecycle-hook-factory)
+  - [11. BDD / Gherkin Integration](#11-bdd--gherkin-integration)
+  - [12. Environment \& Configuration Management](#12-environment--configuration-management)
+  - [13. CI/CD \& Containerisation](#13-cicd--containerisation)
+  - [14. Documentation Generation](#14-documentation-generation)
+  - [15. Cross-Cutting Concerns](#15-cross-cutting-concerns)
+  - [16. Non-Functional Requirements](#16-non-functional-requirements)
+  - [17. Cloud Testing Platform Integration](#17-cloud-testing-platform-integration)
+    - [17.1 General Cloud Requirements](#171-general-cloud-requirements)
+    - [17.2 BrowserStack](#172-browserstack)
+    - [17.3 Sauce Labs](#173-sauce-labs)
+    - [17.4 LambdaTest](#174-lambdatest)
+    - [17.5 Perfecto](#175-perfecto)
+  - [18. Configuration Resolution Engine](#18-configuration-resolution-engine)
+  - [19. API Testing (Standalone)](#19-api-testing-standalone)
+  - [20. Database Testing Support](#20-database-testing-support)
+  - [21. Visual Regression Testing](#21-visual-regression-testing)
+  - [22. Accessibility Testing](#22-accessibility-testing)
+  - [23. Notification \& Alerting](#23-notification--alerting)
+  - [24. Test Data Management](#24-test-data-management)
+  - [Appendix A — Environment Variables](#appendix-a--environment-variables)
+  - [Appendix B — Traceability Matrix](#appendix-b--traceability-matrix)
 
 ---
 
@@ -78,14 +96,21 @@ Provide a **single, production-ready test automation framework** that enterprise
 
 | In Scope | Out of Scope |
 |----------|-------------|
-| Web browser automation (Chrome, Firefox, Edge) | Unit / integration testing of the application under test |
-| Mobile native & hybrid app automation (Android, iOS) | Performance / load testing infrastructure |
-| Data-driven testing via Excel, JSON, YAML, CSV | Security penetration testing |
-| API testing support (REST, GraphQL) | Visual regression tooling (may be extended) |
-| Parallel & distributed execution | Test management tool integrations (Jira, qTest, etc.) |
+| Web browser automation (Chrome, Firefox, Edge, Safari) | Unit / integration testing of the application under test |
+| Mobile native & hybrid app automation (Android, iOS) | Performance / load testing infrastructure (JMeter, Gatling) |
+| Data-driven testing via Excel, JSON, YAML, CSV | Security penetration testing (OWASP ZAP, Burp Suite) |
+| API testing support (REST, GraphQL, SOAP) | Test management tool integrations (Jira, qTest, etc.) |
+| Cloud testing platforms (BrowserStack, Sauce Labs, LambdaTest, Perfecto) | |
+| Parallel & distributed execution | |
 | Multi-environment support (dev, staging, prod) | |
+| Three-tier configuration resolution (env var > env config > defaults) | |
+| Visual regression testing support | |
+| Accessibility testing support | |
+| Database testing support (query validation, setup/teardown) | |
 | Reporting (HTML, Allure, Cucumber) | |
 | CI/CD pipeline templates (GitHub Actions, Docker) | |
+| Notification & alerting (Slack, email) | |
+| Test data generation (faker-based synthetic data) | |
 | Complete API documentation generation for end users | |
 
 ### 1.3 Stakeholders
@@ -783,6 +808,210 @@ The Abstract Base Page is the **root class** for every page/screen object. It is
 
 ---
 
+## 17. Cloud Testing Platform Integration
+
+The framework SHALL provide first-class support for executing tests on cloud testing platforms without requiring changes to test code (page objects, step definitions). Only configuration and capabilities change.
+
+### 17.1 General Cloud Requirements
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **CLD-01** | SHALL support at least four cloud platforms: **BrowserStack**, **Sauce Labs**, **LambdaTest**, **Perfecto**. Adding new providers SHALL require only a new capability file, not changes to existing code. | Must |
+| **CLD-02** | Cloud provider selection SHALL be driven by a single env var (`CLOUD_PROVIDER`). | Must |
+| **CLD-03** | Cloud credentials (username, access key / security token) SHALL be resolved from env vars. Credentials SHALL **never** appear in committed configuration files. | Must |
+| **CLD-04** | SHALL provide a `resolveCloudCapabilities(options)` dispatcher that returns the correct capability object for the configured provider. | Must |
+| **CLD-05** | SHALL provide a `getCloudConnection(provider)` function returning `{ protocol, hostname, port, path }` for the provider's remote WebDriver hub. | Must |
+| **CLD-06** | Each provider SHALL support **desktop browser**, **mobile browser**, and **mobile app** capability modes. | Must |
+| **CLD-07** | Cloud configuration SHALL integrate with the Configuration Resolution Engine (§18) — all cloud-specific keys SHALL follow the three-tier precedence model. | Must |
+| **CLD-08** | A dedicated cloud wdio config file (or equivalent runner override) SHALL be provided that wires connection settings and capabilities from the provider. | Should |
+| **CLD-09** | Local services (e.g. chromedriver, geckodriver) SHALL be automatically disabled when running on a cloud provider. | Must |
+
+### 17.2 BrowserStack
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **BS-01** | Credentials SHALL be read from `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY`. | Must |
+| **BS-02** | SHALL support `bstack:options` including: project, build, session name, local tunnel, debug, video, network logs, console logs, OS, OS version, resolution. | Must |
+| **BS-03** | SHALL support BrowserStack Local tunnel via `BROWSERSTACK_LOCAL` and `BROWSERSTACK_LOCAL_ID`. | Should |
+| **BS-04** | SHALL support real-device mobile testing via `BROWSERSTACK_DEVICE` and `BROWSERSTACK_REAL_MOBILE`. | Must |
+| **BS-05** | SHALL support mobile app testing via `BROWSERSTACK_APP_URL` (bs://hash). | Must |
+
+### 17.3 Sauce Labs
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **SL-01** | Credentials SHALL be read from `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY`. | Must |
+| **SL-02** | SHALL support multi-region data centres: `us-west-1`, `eu-central-1`, `apac-southeast-1` via `SAUCE_REGION`. | Must |
+| **SL-03** | SHALL support `sauce:options` including: build, tunnel, extended debugging, performance capture, idle timeout, max duration, video, screenshots, logs. | Must |
+| **SL-04** | SHALL support Sauce Connect tunnel via `SAUCE_TUNNEL_NAME` and `SAUCE_TUNNEL_OWNER`. | Should |
+| **SL-05** | SHALL support mobile emulator/simulator and real-device testing. | Must |
+| **SL-06** | SHALL support mobile app testing via `SAUCE_APP_URL` (storage:filename or direct URL). | Must |
+
+### 17.4 LambdaTest
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **LT-01** | Credentials SHALL be read from `LAMBDATEST_USERNAME` and `LAMBDATEST_ACCESS_KEY`. | Must |
+| **LT-02** | SHALL support `LT:Options` including: build, project, tunnel, video, console logs, network logs, visual testing, resolution, Selenium version. | Must |
+| **LT-03** | SHALL support Lambda Tunnel via `LAMBDATEST_TUNNEL` and `LAMBDATEST_TUNNEL_NAME`. | Should |
+| **LT-04** | SHALL support mobile real-device and emulator testing. | Must |
+| **LT-05** | SHALL support mobile app testing via `LAMBDATEST_APP_URL` (lt://hash). | Must |
+
+### 17.5 Perfecto
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **PF-01** | Credentials SHALL be read from `PERFECTO_CLOUD_NAME` and `PERFECTO_SECURITY_TOKEN`. | Must |
+| **PF-02** | SHALL support `perfecto:options` including: project, job name/number, tags, report model. | Must |
+| **PF-03** | SHALL support device selection by name, manufacturer, model, platform version, and lab location. | Must |
+| **PF-04** | SHALL support desktop web, mobile web (real device), and native app testing. | Must |
+| **PF-05** | SHALL support auto-instrumentation and sensor instrumentation flags. | Should |
+
+---
+
+## 18. Configuration Resolution Engine
+
+The framework SHALL provide a centralised configuration resolution engine that eliminates scattered `process.env` / `os.environ` / `System.getProperty` reads throughout the codebase.
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **CRE-01** | SHALL implement a **three-tier precedence** model: `environment variable > environment-specific config file > default config file`. | Must |
+| **CRE-02** | SHALL provide a static default configuration file (`defaults.config.json` or equivalent) containing sane defaults for **all** recognized config keys. | Must |
+| **CRE-03** | SHALL provide environment-specific config files (e.g. `dev.config.json`, `staging.config.json`, `prod.config.json`, `docker.config.json`). | Must |
+| **CRE-04** | The active environment SHALL be determined by the `TEST_ENV` env var. The engine SHALL auto-load the corresponding environment config file. | Must |
+| **CRE-05** | SHALL provide typed accessor methods: `get(key, fallback)` → string, `getInt(key, fallback)` → integer, `getBool(key, fallback)` → boolean. | Must |
+| **CRE-06** | SHALL provide convenience getters for the most commonly used keys: `baseUrl`, `apiBaseUrl`, `browser`, `headless`, `maxInstances`, `logLevel`, `retryCount`, etc. | Should |
+| **CRE-07** | SHALL provide `init(env)` for explicit initialisation and `reset()` for test isolation. | Must |
+| **CRE-08** | SHALL provide `getEnv()` returning the resolved environment name. | Must |
+| **CRE-09** | SHALL provide `summary()` returning a human-readable summary of resolved config (with sensitive values masked). | Should |
+| **CRE-10** | SHALL provide `getAll()` returning the fully merged config object. | Should |
+| **CRE-11** | Auto-detection of browser/driver version SHALL be supported (e.g. reading `DRIVER_VERSION=auto` triggers OS-level version detection). | Should |
+| **CRE-12** | Config files SHALL be JSON (or YAML) — requiring no code compilation to modify. | Must |
+| **CRE-13** | All framework modules SHALL use the Configuration Resolution Engine instead of direct env var reads. | Must |
+| **CRE-14** | The engine SHALL be a singleton to avoid redundant file I/O. | Must |
+
+---
+
+## 19. API Testing (Standalone)
+
+While the HTTP client helper (§6.1) provides the requesting mechanism, the framework SHALL also support **standalone API test scenarios** where no browser session is needed. This section defines requirements for API-only test execution.
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **APT-01** | The framework SHALL support running API-only test suites that do NOT launch a browser session. | Must |
+| **APT-02** | API tests SHALL be authorable in BDD/Gherkin syntax alongside UI tests (`Given I send a GET request to "/users"`). | Must |
+| **APT-03** | SHALL provide predefined step definitions (or step definition templates) for common API operations: send request, validate status, validate response body, validate headers, validate JSON schema, validate response time. | Should |
+| **APT-04** | SHALL support request chaining: extract values from one response (JSONPath or header) and inject into subsequent requests. | Must |
+| **APT-05** | SHALL support **JSON Schema validation** against response payloads. | Should |
+| **APT-06** | SHALL support **contract testing** — comparing API responses against stored baseline contracts. | Should |
+| **APT-07** | SHALL support **authentication flows**: OAuth2 token retrieval, basic auth, bearer token, API key, cookie-based auth. | Must |
+| **APT-08** | API response assertions SHALL include: status code, status text, header values, JSON body paths, array length, response time thresholds. | Must |
+| **APT-09** | SHALL support environment-specific API base URLs resolved via the Configuration Resolution Engine. | Must |
+| **APT-10** | SHALL support multipart/form-data uploads and binary response handling. | Should |
+| **APT-11** | SHALL support GraphQL queries, mutations, and subscriptions with variable injection. | Should |
+| **APT-12** | SHALL support SOAP/XML web services — send XML payloads, parse XML responses, XPath assertions. | Should |
+| **APT-13** | API test reports SHALL include request/response details (method, URL, headers, body, status, duration). | Should |
+| **APT-14** | SHALL support parallel execution of API test suites independently from UI tests. | Should |
+
+---
+
+## 20. Database Testing Support
+
+The framework SHALL provide database connectivity helpers for test data setup, teardown, and assertion against database state.
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **DB-01** | SHALL provide a database client supporting at least: MySQL/MariaDB, PostgreSQL, SQL Server, SQLite, Oracle. Implementation MAY use a common library for all providers. | Must |
+| **DB-02** | Database connections SHALL be configured via env vars: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_TYPE`. | Must |
+| **DB-03** | SHALL provide `query(sql, params)` with parameterized query support to prevent SQL injection. | Must |
+| **DB-04** | SHALL provide convenience methods: `findOne(table, where)`, `findAll(table, where)`, `insert(table, data)`, `update(table, data, where)`, `delete(table, where)`, `count(table, where)`. | Should |
+| **DB-05** | SHALL provide `executeScript(filePath)` to run SQL scripts from file. | Should |
+| **DB-06** | SHALL support connection pooling with configurable pool size. | Should |
+| **DB-07** | SHALL provide `truncateTable(table)` and `seedTable(table, dataArray)` for test setup/teardown. | Should |
+| **DB-08** | Database credentials SHALL be encrypted or resolved via the Encryption Helper when stored in config files. | Should |
+| **DB-09** | SHALL support multiple simultaneous database connections (e.g. source DB vs. target DB comparisons). | Should |
+| **DB-10** | SHALL provide `assertRowExists(table, where)`, `assertRowCount(table, where, expected)`, `assertColumnValue(table, where, column, expected)`. | Should |
+| **DB-11** | Connection lifecycle (open, close, pool drain) SHALL be managed automatically in lifecycle hooks. | Should |
+| **DB-12** | Database operations SHALL support transactions: `beginTransaction()`, `commit()`, `rollback()`. | Should |
+
+---
+
+## 21. Visual Regression Testing
+
+The framework SHALL support visual regression testing to detect unintended UI changes by comparing screenshots against approved baselines.
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **VIS-01** | SHALL provide a `compareScreenshot(name, options)` method that captures a screenshot and compares it against a stored baseline. | Must |
+| **VIS-02** | SHALL provide element-level visual comparison: `compareElement(selector, name, options)`. | Should |
+| **VIS-03** | SHALL support configurable comparison thresholds: `mismatchTolerance` (percentage) and `mismatchPixelTolerance` (absolute pixels). | Must |
+| **VIS-04** | First-run screenshots SHALL be saved as baselines (no comparison performed). | Must |
+| **VIS-05** | SHALL generate visual diff images highlighting changed regions. | Should |
+| **VIS-06** | Baseline images SHALL be stored in a configurable directory (default: `test/visual-baselines/`). | Must |
+| **VIS-07** | SHALL support masking/ignoring dynamic regions (e.g. timestamps, ads, animations) via exclusion rectangles or CSS selectors. | Should |
+| **VIS-08** | SHALL support platform/browser-specific baselines (same test, different baseline per browser). | Should |
+| **VIS-09** | Comparison results SHALL be included in Allure/Cucumber reports (baseline, actual, diff images). | Should |
+| **VIS-10** | SHALL provide a CLI or config command to update baselines in bulk after intentional UI changes. | Should |
+
+---
+
+## 22. Accessibility Testing
+
+The framework SHALL provide accessibility (a11y) testing capabilities to verify WCAG compliance during end-to-end test execution.
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **A11Y-01** | SHALL integrate an accessibility scanning engine (e.g. axe-core, Pa11y, Accessibility Insights) that can be invoked during any test. | Must |
+| **A11Y-02** | SHALL provide `runAccessibilityScan(options)` returning a list of violations with: rule ID, description, impact level, help URL, affected elements. | Must |
+| **A11Y-03** | SHALL support scan scope: full page, specific element, or specific region. | Must |
+| **A11Y-04** | SHALL support filtering violations by: WCAG level (A, AA, AAA), impact (critical, serious, moderate, minor), specific rule IDs to include/exclude. | Must |
+| **A11Y-05** | SHALL provide `assertNoA11yViolations(options)` that fails the test if violations matching the filter criteria are found. | Must |
+| **A11Y-06** | A11y results SHALL be attachable to test reports (Allure, Cucumber) as structured data. | Should |
+| **A11Y-07** | SHALL support a baseline/known-issues file to suppress known violations without failing the test. | Should |
+| **A11Y-08** | SHALL provide summary statistics: total violations, by impact level, by WCAG level. | Should |
+| **A11Y-09** | Scans SHALL be configurable per environment (e.g. strict in CI, advisory in dev). | Should |
+
+---
+
+## 23. Notification & Alerting
+
+The framework SHALL support sending test execution notifications to collaboration and alerting tools.
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **NTF-01** | SHALL support Slack notifications with configurable webhook URL via `SLACK_WEBHOOK_URL` env var. | Should |
+| **NTF-02** | SHALL support email notifications with configurable recipients via `EMAIL_RECIPIENTS` env var. | Should |
+| **NTF-03** | Notifications SHALL be sent in the `onComplete` lifecycle hook (or equivalent post-run phase). | Must |
+| **NTF-04** | Notification payload SHALL include: total tests, passed, failed, skipped, duration, environment, browser, report link. | Must |
+| **NTF-05** | Notifications SHALL be toggleable — disabled by default to avoid noise in development. | Must |
+| **NTF-06** | SHALL support conditional notification rules: e.g. "notify only on failure", "notify only in CI", "notify always". | Should |
+| **NTF-07** | Slack messages SHALL use rich formatting (blocks/attachments) with colour-coded status indicators. | Should |
+| **NTF-08** | SHALL support Microsoft Teams notifications via incoming webhook. | Should |
+| **NTF-09** | Notification failures SHALL be caught and logged — they SHALL NOT cause the test run to fail. | Must |
+
+---
+
+## 24. Test Data Management
+
+Beyond the Data Generator (§6.2) and Data-Driven Manager (§6.8), the framework SHALL provide broader test data management capabilities for enterprise scenarios.
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| **TDM-01** | SHALL support **fixture files** — reusable JSON/YAML data files organized per feature/module that are loaded automatically based on test context. | Must |
+| **TDM-02** | SHALL support **data factories** — programmatic builders that compose complex test entities from simple generators (e.g. `UserFactory.withAddress().withCreditCard().build()`). | Should |
+| **TDM-03** | SHALL support **locale-aware** test data generation (e.g. Japanese names, German addresses, US phone numbers). | Must |
+| **TDM-04** | SHALL support **deterministic data** via seeding — the same seed value SHALL produce identical data across runs for reproducibility. | Must |
+| **TDM-05** | SHALL support **data cleanup** — framework SHALL track created test data (IDs, names) and provide a cleanup mechanism to delete them after test completion. | Should |
+| **TDM-06** | SHALL support **environment-specific test data** — different fixture files or factory configurations per environment. | Should |
+| **TDM-07** | SHALL support **data masking** — PII fields in logs and reports SHALL be automatically masked. | Should |
+| **TDM-08** | SHALL support **data snapshot/restore** — save database state before tests and restore after completion (useful for stateful integration tests). | Should |
+| **TDM-09** | Test data generation SHALL be **thread-safe** — parallel workers SHALL not produce colliding unique identifiers. | Must |
+| **TDM-10** | SHALL provide atomic generators for: names, emails, phones, addresses, companies, credit cards, products, UUIDs, timestamps, boolean, numeric, lorem text, URLs, IPs, colours. | Must |
+| **TDM-11** | SHALL provide template-based generation: `fromTemplate('###-???-***')` where `#`=digit, `?`=letter, `*`=alphanumeric. | Should |
+| **TDM-12** | SHALL provide `generateTestId(prefix)` producing a unique timestamped identifier for test traceability. | Should |
+
+---
+
 ## Appendix A — Environment Variables
 
 | Variable | Package | Default | Description |
@@ -843,6 +1072,75 @@ The Abstract Base Page is the **root class** for every page/screen object. It is
 | `AUTH_TOKEN` | Core | — | Auth token |
 | `SLACK_WEBHOOK_URL` | Core | — | Slack notification URL |
 | `EMAIL_RECIPIENTS` | Core | — | Email notification list |
+| `CLOUD_PROVIDER` | Cloud | — | Cloud platform: `browserstack` / `saucelabs` / `lambdatest` / `perfecto` |
+| `BROWSERSTACK_USERNAME` | Cloud | — | BrowserStack account username |
+| `BROWSERSTACK_ACCESS_KEY` | Cloud | — | BrowserStack access key |
+| `BROWSERSTACK_PROJECT` | Cloud | `PROJECT_NAME` | BrowserStack project name |
+| `BROWSERSTACK_BUILD` | Cloud | auto-generated | BrowserStack build name |
+| `BROWSERSTACK_LOCAL` | Cloud | `false` | Enable BrowserStack Local tunnel |
+| `BROWSERSTACK_LOCAL_ID` | Cloud | — | Local tunnel identifier |
+| `BROWSERSTACK_DEBUG` | Cloud | `false` | Enable visual logs |
+| `BROWSERSTACK_NETWORK_LOGS` | Cloud | `false` | Capture network logs |
+| `BROWSERSTACK_CONSOLE_LOGS` | Cloud | `errors` | Console log level |
+| `BROWSERSTACK_VIDEO` | Cloud | `true` | Record video |
+| `BROWSERSTACK_OS` | Cloud | — | Target OS name |
+| `BROWSERSTACK_OS_VERSION` | Cloud | — | Target OS version |
+| `BROWSERSTACK_RESOLUTION` | Cloud | — | Screen resolution |
+| `BROWSERSTACK_DEVICE` | Cloud | — | Mobile device name |
+| `BROWSERSTACK_REAL_MOBILE` | Cloud | `true` | Use real mobile device |
+| `BROWSERSTACK_APP_URL` | Cloud | — | App URL (bs://hash) |
+| `BROWSERSTACK_APPIUM_VERSION` | Cloud | — | Appium version |
+| `SAUCE_USERNAME` | Cloud | — | Sauce Labs account username |
+| `SAUCE_ACCESS_KEY` | Cloud | — | Sauce Labs access key |
+| `SAUCE_REGION` | Cloud | `us-west-1` | Data centre region |
+| `SAUCE_BUILD` | Cloud | auto-generated | Build name |
+| `SAUCE_TUNNEL_NAME` | Cloud | — | Sauce Connect tunnel name |
+| `SAUCE_TUNNEL_OWNER` | Cloud | — | Tunnel owner |
+| `SAUCE_SCREEN_RESOLUTION` | Cloud | — | Screen resolution |
+| `SAUCE_EXTENDED_DEBUGGING` | Cloud | `false` | Extended debugging |
+| `SAUCE_CAPTURE_PERFORMANCE` | Cloud | `false` | Performance metrics |
+| `SAUCE_IDLE_TIMEOUT` | Cloud | `90` | Idle timeout (seconds) |
+| `SAUCE_MAX_DURATION` | Cloud | `1800` | Max test duration (seconds) |
+| `SAUCE_RECORD_VIDEO` | Cloud | `true` | Record video |
+| `SAUCE_RECORD_SCREENSHOTS` | Cloud | `true` | Record screenshots |
+| `SAUCE_RECORD_LOGS` | Cloud | `true` | Record logs |
+| `SAUCE_DEVICE` | Cloud | — | Mobile device name |
+| `SAUCE_PLATFORM_VERSION` | Cloud | — | Mobile platform version |
+| `SAUCE_APP_URL` | Cloud | — | App URL (storage:filename) |
+| `SAUCE_APPIUM_VERSION` | Cloud | — | Appium version |
+| `LAMBDATEST_USERNAME` | Cloud | — | LambdaTest account username |
+| `LAMBDATEST_ACCESS_KEY` | Cloud | — | LambdaTest access key |
+| `LAMBDATEST_BUILD` | Cloud | auto-generated | Build name |
+| `LAMBDATEST_PROJECT` | Cloud | `PROJECT_NAME` | Project name |
+| `LAMBDATEST_TUNNEL` | Cloud | `false` | Enable Lambda Tunnel |
+| `LAMBDATEST_TUNNEL_NAME` | Cloud | — | Tunnel name |
+| `LAMBDATEST_VIDEO` | Cloud | `true` | Record video |
+| `LAMBDATEST_CONSOLE_LOGS` | Cloud | `false` | Capture console logs |
+| `LAMBDATEST_NETWORK_LOGS` | Cloud | `false` | Capture network logs |
+| `LAMBDATEST_VISUAL` | Cloud | `false` | Visual testing |
+| `LAMBDATEST_RESOLUTION` | Cloud | — | Screen resolution |
+| `LAMBDATEST_SELENIUM_VERSION` | Cloud | `4.0` | Selenium version |
+| `LAMBDATEST_DEVICE` | Cloud | — | Mobile device name |
+| `LAMBDATEST_PLATFORM_VERSION` | Cloud | — | Mobile platform version |
+| `LAMBDATEST_APP_URL` | Cloud | — | App URL (lt://hash) |
+| `LAMBDATEST_APPIUM_VERSION` | Cloud | — | Appium version |
+| `PERFECTO_CLOUD_NAME` | Cloud | — | Perfecto cloud name |
+| `PERFECTO_SECURITY_TOKEN` | Cloud | — | Perfecto security token |
+| `PERFECTO_PROJECT` | Cloud | `PROJECT_NAME` | Project name |
+| `PERFECTO_JOB_NAME` | Cloud | — | CI job name |
+| `PERFECTO_JOB_NUMBER` | Cloud | — | CI build number |
+| `PERFECTO_TAGS` | Cloud | — | Comma-separated test tags |
+| `PERFECTO_REPORT_MODEL` | Cloud | `single` | Report model |
+| `PERFECTO_DEVICE_NAME` | Cloud | — | Device name |
+| `PERFECTO_PLATFORM_NAME` | Cloud | — | Platform name |
+| `PERFECTO_PLATFORM_VERSION` | Cloud | — | Platform version |
+| `PERFECTO_MANUFACTURER` | Cloud | — | Device manufacturer |
+| `PERFECTO_MODEL` | Cloud | — | Device model |
+| `PERFECTO_LOCATION` | Cloud | — | Lab location |
+| `PERFECTO_RESOLUTION` | Cloud | `1920x1080` | Desktop resolution |
+| `PERFECTO_APP_URL` | Cloud | — | App URL or REPOSITORY path |
+| `PERFECTO_AUTO_INSTRUMENT` | Cloud | `false` | Auto-instrument for perf |
+| `PERFECTO_SENSOR_INSTRUMENT` | Cloud | `false` | Instrument sensors |
 
 ---
 
@@ -893,6 +1191,18 @@ This matrix maps each requirement ID to the implementation module in the current
 | DOC-01 – DOC-10 | Root | `jsdoc.config.json`, `package.json`, `docs/api/` |
 | XCT-01 – XCT-08 | All | Cross-cutting, enforced across all packages |
 | NFR-01 – NFR-09 | All | Non-functional, verified via testing and review |
+| CLD-01 – CLD-09 | Cloud | `config/capabilities/index.js`, `config/wdio.cloud.js` |
+| BS-01 – BS-05 | Cloud | `config/capabilities/browserstack.js` |
+| SL-01 – SL-06 | Cloud | `config/capabilities/saucelabs.js` |
+| LT-01 – LT-05 | Cloud | `config/capabilities/lambdatest.js` |
+| PF-01 – PF-05 | Cloud | `config/capabilities/perfecto.js` |
+| CRE-01 – CRE-14 | Core | `packages/core/src/utils/ConfigResolver.js`, `config/defaults.config.json`, `config/environments/*.config.json` |
+| APT-01 – APT-14 | Core / API | `packages/core/src/helpers/ApiHelper.js`, step definitions |
+| DB-01 – DB-12 | Core | Database helper (implementation-dependent) |
+| VIS-01 – VIS-10 | UI | Visual regression service integration |
+| A11Y-01 – A11Y-09 | UI | Accessibility scanner integration |
+| NTF-01 – NTF-09 | Core | Notification helper (Slack, email, Teams) |
+| TDM-01 – TDM-12 | Core | `packages/core/src/helpers/DataGenerator.js`, `packages/core/src/helpers/DataDrivenManager.js` |
 
 ---
 

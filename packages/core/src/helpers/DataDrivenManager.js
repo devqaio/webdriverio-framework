@@ -23,7 +23,8 @@
  *   ddm.loadExcel('test/data/testData.xlsx', 'LoginTests');
  *   const creds = ddm.get('validUsers.admin');
  *   const rows  = ddm.getTargetedRows('LoginTests', { Execute: 'Y' });
- * ═══════════════════════════════════════════════════════════════════════
+ *
+ * @module DataDrivenManager
  */
 
 const path = require('path');
@@ -33,6 +34,13 @@ const { ExcelHelper } = require('./ExcelHelper');
 
 const logger = Logger.getInstance('DataDrivenManager');
 
+/**
+ * Centralised test data orchestration engine.
+ * Resolves data from JSON files, Excel workbooks, environment variables,
+ * or inline defaults in a prioritised cascade.
+ *
+ * @class DataDrivenManager
+ */
 class DataDrivenManager {
     constructor() {
         /** @type {Map<string, object>} */

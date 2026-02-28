@@ -4,10 +4,12 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
+const { ConfigResolver } = require('@wdio-framework/core');
+
 function getFirefoxCapabilities(options = {}) {
-    const isHeadless = process.env.HEADLESS === 'true' || options.headless;
-    const width = parseInt(process.env.WINDOW_WIDTH, 10) || 1920;
-    const height = parseInt(process.env.WINDOW_HEIGHT, 10) || 1080;
+    const isHeadless = ConfigResolver.getBool('HEADLESS') || options.headless;
+    const width = ConfigResolver.getInt('WINDOW_WIDTH', 1920);
+    const height = ConfigResolver.getInt('WINDOW_HEIGHT', 1080);
 
     const firefoxArgs = [`--width=${width}`, `--height=${height}`];
 

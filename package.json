@@ -35,6 +35,7 @@
     "test:parallel": "npx wdio run config/wdio.conf.js --maxInstances=5",
     "test:docker": "npx wdio run config/wdio.docker.js",
     "test:mobile": "npx wdio run config/wdio.mobile.js",
+    "test:cloud": "npx wdio run config/wdio.cloud.js",
     "test:targeted": "node scripts/runTargeted.js",
     "test:tags": "npx wdio run config/wdio.conf.js --cucumberOpts.tagExpression",
     "generate:features": "node scripts/generateFeatures.js",

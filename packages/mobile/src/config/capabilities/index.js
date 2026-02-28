@@ -2,6 +2,7 @@
  * Mobile Capabilities Index — Android & iOS
  */
 
+const { ConfigResolver } = require('@wdio-framework/core');
 const { getAndroidCapabilities, getAndroidChromeCapabilities } = require('./android');
 const { getIOSCapabilities, getIOSSafariCapabilities } = require('./ios');
 

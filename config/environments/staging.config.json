@@ -1,0 +1,10 @@
+{
+  "_meta": {
+    "description": "STAGING environment overrides. Keys defined here override defaults.config.json. Environment variables still take highest precedence."
+  },
+
+  "BASE_URL": "https://staging.example.com",
+  "API_BASE_URL": "https://api.staging.example.com",
+  "LOG_LEVEL": "warn",
+  "TAG_EXPRESSION": "@smoke or @regression"
+}

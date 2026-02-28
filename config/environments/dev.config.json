@@ -1,0 +1,10 @@
+{
+  "_meta": {
+    "description": "DEV environment overrides. Keys defined here override defaults.config.json. Environment variables still take highest precedence."
+  },
+
+  "BASE_URL": "https://dev.example.com",
+  "API_BASE_URL": "https://api.dev.example.com",
+  "LOG_LEVEL": "info",
+  "TAG_EXPRESSION": "not @prod-only"
+}

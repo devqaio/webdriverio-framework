@@ -6,10 +6,11 @@
 
 const { config } = require('./wdio.conf');
 const { deepMerge } = require('./helpers/configHelper');
+const { ConfigResolver } = require('@wdio-framework/core');
 
 const dockerConfig = deepMerge(config, {
-    hostname: process.env.SELENIUM_HUB_HOST || 'selenium-hub',
-    port: parseInt(process.env.SELENIUM_HUB_PORT, 10) || 4444,
+    hostname: ConfigResolver.get('SELENIUM_HUB_HOST', 'selenium-hub'),
+    port: ConfigResolver.getInt('SELENIUM_HUB_PORT', 4444),
     path: '/wd/hub',
     logLevel: 'warn',
     capabilities: [

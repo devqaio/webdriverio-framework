@@ -15,7 +15,9 @@
 require('dotenv').config();
 
 const path = require('path');
-const { createBaseHooks } = require('@wdio-framework/core');
+const { createBaseHooks, ConfigResolver } = require('@wdio-framework/core');
+
+ConfigResolver.init();
 const { resolveMobileCapabilities } = require('./capabilities');
 
 const ROOT = process.cwd();
@@ -30,8 +32,8 @@ const mobileConfig = {
     runner: 'local',
 
     // ─── Appium Server ────────────────────────────────────────
-    hostname: process.env.APPIUM_HOST || '127.0.0.1',
-    port: parseInt(process.env.APPIUM_PORT, 10) || 4723,
+    hostname: ConfigResolver.get('APPIUM_HOST', '127.0.0.1'),
+    port: ConfigResolver.getInt('APPIUM_PORT', 4723),
     path: '/',
 
     // ─── Test Files ───────────────────────────────────────────
@@ -39,23 +41,23 @@ const mobileConfig = {
     exclude: [],
 
     // ─── Parallel Execution ───────────────────────────────────
-    maxInstances: parseInt(process.env.MAX_INSTANCES, 10) || 1,
+    maxInstances: ConfigResolver.getInt('MAX_INSTANCES', 1),
 
     // ─── Capabilities ─────────────────────────────────────────
     capabilities: [
         {
             maxInstances: 1,
-            ...resolveMobileCapabilities(process.env.MOBILE_PLATFORM || 'android'),
+            ...resolveMobileCapabilities(ConfigResolver.get('MOBILE_PLATFORM', 'android')),
         },
     ],
 
     // ─── Log Level ────────────────────────────────────────────
-    logLevel: process.env.LOG_LEVEL || 'warn',
+    logLevel: ConfigResolver.get('LOG_LEVEL', 'warn'),
     outputDir: path.join(ROOT, 'logs'),
 
     // ─── Defaults ─────────────────────────────────────────────
     bail: 0,
-    waitforTimeout: parseInt(process.env.TIMEOUT_IMPLICIT, 10) || 30000,
+    waitforTimeout: ConfigResolver.getInt('TIMEOUT_IMPLICIT', 30000),
     connectionRetryTimeout: 180000,
     connectionRetryCount: 3,
 
@@ -71,13 +73,13 @@ const mobileConfig = {
         snippets: true,
         source: true,
         strict: true,
-        tagExpression: process.env.TAG_EXPRESSION || '',
+        tagExpression: ConfigResolver.get('TAG_EXPRESSION', ''),
         timeout: 180000,
-        retry: parseInt(process.env.RETRY_COUNT, 10) || 1,
+        retry: ConfigResolver.getInt('RETRY_COUNT', 1),
     },
 
     // ─── Spec Retries ─────────────────────────────────────────
-    specFileRetries: parseInt(process.env.SPEC_FILE_RETRIES, 10) || 0,
+    specFileRetries: ConfigResolver.getInt('SPEC_FILE_RETRIES', 0),
     specFileRetriesDelay: 0,
     specFileRetriesDeferred: false,
 
@@ -98,7 +100,7 @@ const mobileConfig = {
         ['appium', {
             command: 'appium',
             args: {
-                relaxedSecurity: process.env.APPIUM_RELAXED_SECURITY === 'true',
+                relaxedSecurity: ConfigResolver.getBool('APPIUM_RELAXED_SECURITY'),
                 log: path.join(ROOT, 'logs', 'appium.log'),
             },
         }],

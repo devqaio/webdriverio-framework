@@ -2,24 +2,71 @@
  * ═══════════════════════════════════════════════════════════════
  * RetryHandler - Intelligent Retry & Recovery Logic
  * ═══════════════════════════════════════════════════════════════
+ *
+ * Provides resilient execution patterns for flaky operations:
+ *
+ * - **Simple retry** — exponential back-off with configurable attempts
+ * - **Browser-aware retry** — auto-recovers from stale element and
+ *   click-intercept errors common in DOM-heavy SPAs
+ * - **Circuit breaker** — stops retrying after N consecutive failures
+ *   and enters a cooldown period (closed → open → half-open → closed)
+ *
+ * @module RetryHandler
+ * @example
+ * const { RetryHandler } = require('@wdio-framework/core');
+ *
+ * // Simple retry with exponential back-off
+ * const result = await RetryHandler.retry(() => fetchData(), {
+ *     maxAttempts: 5,
+ *     delay: 1000,
+ *     exponential: true,
+ * });
+ *
+ * // Browser action retry (auto-handles stale element errors)
+ * await RetryHandler.retryBrowserAction(() => $('button').click());
+ *
+ * // Circuit breaker pattern
+ * const breaker = RetryHandler.createCircuitBreaker({ threshold: 3, cooldown: 10000 });
+ * const data = await breaker.execute(() => callExternalService());
  */
 
 const { Logger } = require('./Logger');
 
 const logger = Logger.getInstance('RetryHandler');
 
+/**
+ * Static utility class providing retry and circuit-breaker patterns
+ * for resilient test execution.
+ *
+ * @class RetryHandler
+ */
 class RetryHandler {
     /**
-     * Retry an async function up to `maxAttempts` times.
+     * Retry an async function up to `maxAttempts` times with configurable
+     * delay strategy. On each failure the error is checked against
+     * `shouldRetry`; if false the error is thrown immediately.
      *
-     * @param {Function}  fn           Async function to execute
+     * @param {Function}  fn           Async function to execute. Receives the current
+     *                                 attempt number (1-based) as its argument.
      * @param {Object}    options
-     * @param {number}    options.maxAttempts   Total attempts including the first (default 3)
-     * @param {number}    options.maxRetries    Alias for maxAttempts (deprecated — use maxAttempts)
-     * @param {number}    options.delay         Base delay between retries in ms (default 1000)
-     * @param {boolean}   options.exponential   Use exponential back-off (default true)
-     * @param {Function}  options.onRetry       Callback invoked before each retry
-     * @param {Function}  options.shouldRetry   Predicate to decide if the error is retryable
+     * @param {number}    [options.maxAttempts=3]   Total attempts including the first
+     * @param {number}    [options.maxRetries]      Alias for maxAttempts (deprecated — use maxAttempts)
+     * @param {number}    [options.delay=1000]      Base delay between retries in ms
+     * @param {boolean}   [options.exponential=true] Use exponential back-off (delay × 2^attempt)
+     * @param {Function}  [options.onRetry]          Callback `(error, attempt) => void` invoked before each retry
+     * @param {Function}  [options.shouldRetry]      Predicate `(error) => boolean` to decide if the error is retryable
+     * @returns {Promise<*>} The return value of `fn` on the first successful attempt
+     * @throws {Error} The last error encountered when all attempts are exhausted
+     *
+     * @example
+     * // Retry up to 5 times with exponential back-off
+     * const data = await RetryHandler.retry(
+     *     async (attempt) => {
+     *         console.log(`Attempt ${attempt}`);
+     *         return await fetchData();
+     *     },
+     *     { maxAttempts: 5, delay: 500 },
+     * );
      */
     static async retry(fn, {
         maxAttempts,
@@ -59,6 +106,25 @@ class RetryHandler {
 
     /**
      * Retry a browser-level action with automatic stale-element recovery.
+     *
+     * Automatically retries when the error message contains common
+     * WebDriver element-interaction failures:
+     * - `stale element reference`
+     * - `element not interactable`
+     * - `element click intercepted`
+     * - `no such element`
+     * - `element is not attached`
+     *
+     * @param {Function} fn           Async function performing the browser action
+     * @param {number}   [maxRetries=3] Maximum number of retry attempts
+     * @returns {Promise<*>} The return value of `fn` on success
+     * @throws {Error} When all retries are exhausted or a non-retryable error occurs
+     *
+     * @example
+     * await RetryHandler.retryBrowserAction(async () => {
+     *     const btn = await $('button.submit');
+     *     await btn.click();
+     * });
      */
     static async retryBrowserAction(fn, maxRetries = 3) {
         return this.retry(fn, {
@@ -78,8 +144,37 @@ class RetryHandler {
     }
 
     /**
-     * Retry with circuit-breaker pattern: after N consecutive failures,
-     * stop retrying for a cooldown period.
+     * Create a circuit breaker that halts execution after consecutive failures.
+     *
+     * States:
+     * - **closed** — normal operation, all calls pass through
+     * - **open** — failures exceeded threshold; calls are rejected
+     *   instantly until cooldown elapses
+     * - **half-open** — cooldown elapsed; a single probe call is allowed
+     *   to test recovery
+     *
+     * @param {Object}  [options]
+     * @param {number}  [options.threshold=5]    Consecutive failures before opening
+     * @param {number}  [options.cooldown=30000] Cooldown period in ms before half-open
+     * @returns {{execute: Function, reset: Function, state: string}}
+     *   An object with:
+     *   - `execute(fn)` — run `fn` through the breaker (returns Promise)
+     *   - `reset()` — manually reset the breaker to closed state
+     *   - `state` — current breaker state (`'closed'` | `'open'` | `'half-open'`)
+     *
+     * @example
+     * const breaker = RetryHandler.createCircuitBreaker({ threshold: 3, cooldown: 10000 });
+     *
+     * try {
+     *     const result = await breaker.execute(() => callExternalApi());
+     * } catch (err) {
+     *     if (err.message.includes('Circuit breaker open')) {
+     *         console.log('Service unavailable, backing off...');
+     *     }
+     * }
+     *
+     * console.log(breaker.state); // 'closed', 'open', or 'half-open'
+     * breaker.reset();             // Force back to closed
      */
     static createCircuitBreaker({ threshold = 5, cooldown = 30000 } = {}) {
         let failures = 0;

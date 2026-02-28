@@ -1,0 +1,12 @@
+{
+  "_meta": {
+    "description": "PROD environment overrides. Keys defined here override defaults.config.json. Environment variables still take highest precedence."
+  },
+
+  "BASE_URL": "https://www.example.com",
+  "API_BASE_URL": "https://api.example.com",
+  "LOG_LEVEL": "error",
+  "RETRY_COUNT": "0",
+  "TAG_EXPRESSION": "@smoke",
+  "HEADLESS": "true"
+}

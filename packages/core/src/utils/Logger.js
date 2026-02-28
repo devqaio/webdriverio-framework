@@ -24,7 +24,17 @@ const winston = require('winston');
 const path = require('path');
 const fs = require('fs-extra');
 
-const LOG_DIR = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
+/** @private Resolve config via ConfigResolver with process.env fallback. */
+function _cfg(key, fallback) {
+    try {
+        const { ConfigResolver } = require('./ConfigResolver');
+        return ConfigResolver.get(key, fallback);
+    } catch {
+        return process.env[key] || fallback;
+    }
+}
+
+const LOG_DIR = _cfg('LOG_DIR', '') || path.join(process.cwd(), 'logs');
 fs.ensureDirSync(LOG_DIR);
 
 // ─── Formats ──────────────────────────────────────────────────
@@ -208,7 +218,7 @@ class Logger {
         }
 
         const winstonLogger = winston.createLogger({
-            level: process.env.LOG_LEVEL || 'info',
+            level: _cfg('LOG_LEVEL', 'info'),
             defaultMeta: {
                 label,
                 get worker() { return Logger._workerCid; },

@@ -16,7 +16,10 @@ require('dotenv').config();
 const path = require('path');
 const fs = require('fs-extra');
 const { resolveCapabilities } = require('./capabilities');
-const { CustomReporter, Logger, ReportBackupManager, CustomDriverResolver } = require('@wdio-framework/core');
+const { CustomReporter, Logger, ReportBackupManager, CustomDriverResolver, ConfigResolver } = require('@wdio-framework/core');
+
+// ─── Initialise three-tier config: env_var > env_config > default ─────
+ConfigResolver.init();
 
 // Logger for main process (onPrepare, onComplete) — workers get their own context
 // Use a getter to always get the current instance (survives setWorkerContext rebuild)
@@ -41,37 +44,37 @@ exports.config = {
     runner: 'local',
 
     // ─── Server (leave empty to auto-manage drivers) ──────────
-    hostname: process.env.SELENIUM_HUB_HOST || undefined,
-    port: process.env.SELENIUM_HUB_PORT ? parseInt(process.env.SELENIUM_HUB_PORT) : undefined,
-    path: process.env.SELENIUM_HUB_PATH || undefined,
+    hostname: ConfigResolver.get('SELENIUM_HUB_HOST') || undefined,
+    port: ConfigResolver.get('SELENIUM_HUB_PORT') ? ConfigResolver.getInt('SELENIUM_HUB_PORT') : undefined,
+    path: ConfigResolver.get('SELENIUM_HUB_PATH') || undefined,
 
     // ─── Test Files ───────────────────────────────────────────
     specs: [path.join(ROOT, 'test', 'features', '**', '*.feature')],
     exclude: [],
 
     // ─── Parallel Execution ───────────────────────────────────
-    maxInstances: parseInt(process.env.MAX_INSTANCES, 10) || 5,
+    maxInstances: ConfigResolver.maxInstances,
 
     // ─── Capabilities ─────────────────────────────────────────
     capabilities: [
         {
-            maxInstances: parseInt(process.env.MAX_INSTANCES, 10) || 5,
-            ...resolveCapabilities(process.env.BROWSER || 'chrome'),
+            maxInstances: ConfigResolver.maxInstances,
+            ...resolveCapabilities(ConfigResolver.browser),
         },
     ],
 
     // ─── Log Level ────────────────────────────────────────────
-    logLevel: process.env.LOG_LEVEL || 'warn',
+    logLevel: ConfigResolver.logLevel,
     outputDir: LOGS_DIR,
 
     // ─── Bail (0 = run all, N = stop after N failures) ────────
     bail: 0,
 
     // ─── Base URL ─────────────────────────────────────────────
-    baseUrl: process.env.BASE_URL || 'https://example.com',
+    baseUrl: ConfigResolver.baseUrl,
 
     // ─── Timeouts ─────────────────────────────────────────────
-    waitforTimeout: parseInt(process.env.TIMEOUT_IMPLICIT, 10) || 15000,
+    waitforTimeout: ConfigResolver.timeoutImplicit,
     connectionRetryTimeout: 120000,
     connectionRetryCount: 3,
 
@@ -89,13 +92,13 @@ exports.config = {
         snippets: true,
         source: true,
         strict: true,
-        tagExpression: process.env.TAG_EXPRESSION || '',
+        tagExpression: ConfigResolver.get('TAG_EXPRESSION', ''),
         timeout: 120000,
-        retry: parseInt(process.env.RETRY_COUNT, 10) || 1,
+        retry: ConfigResolver.retryCount,
     },
 
     // ─── Spec-level Retries ───────────────────────────────────
-    specFileRetries: parseInt(process.env.SPEC_FILE_RETRIES, 10) || 0,
+    specFileRetries: ConfigResolver.getInt('SPEC_FILE_RETRIES', 0),
     specFileRetriesDelay: 0,
     specFileRetriesDeferred: false,
 
@@ -139,14 +142,17 @@ exports.config = {
     onPrepare: async function (config, capabilities) {
         getLogger().info('════════════════════════════════════════════');
         getLogger().info(' Test Execution Starting');
-        getLogger().info(`  Environment : ${process.env.TEST_ENV || 'dev'}`);
-        getLogger().info(`  Browser     : ${process.env.BROWSER || 'chrome'}`);
+        getLogger().info(`  Environment : ${ConfigResolver.getEnv()}`);
+        getLogger().info(`  Browser     : ${ConfigResolver.browser}`);
         getLogger().info(`  Base URL    : ${config.baseUrl}`);
         getLogger().info(`  Parallel    : ${config.maxInstances} instance(s)`);
         getLogger().info('════════════════════════════════════════════');
+        getLogger().debug(ConfigResolver.summary());
 
         // ─── Custom Driver Resolution (when DRIVER_HOST_URL is set) ───
-        if (process.env.DRIVER_HOST_URL && process.env.DRIVER_VERSION) {
+        const driverHostUrl = ConfigResolver.get('DRIVER_HOST_URL');
+        const driverVersion = ConfigResolver.get('DRIVER_VERSION');
+        if (driverHostUrl && driverVersion) {
             try {
                 const driverOverrides = await CustomDriverResolver.resolveEdgeCapabilityOverrides();
                 // Merge the resolved driver path into each capability
@@ -288,7 +294,7 @@ exports.config = {
         }
 
         // Backup reports to shared folder (only when enabled)
-        if (process.env.REPORT_BACKUP_ENABLE === 'true') {
+        if (ConfigResolver.getBool('REPORT_BACKUP_ENABLE')) {
             try {
                 const backupManager = new ReportBackupManager({ sourceDir: REPORTS_DIR });
                 await backupManager.backup();

@@ -17,14 +17,31 @@
  *   BasePage._resolveElement() uses FrameManager as a fallback when an
  *   element is not found in the main document.
  *
- * Usage:
- *   const fm = new FrameManager();
- *   const el = await fm.findElementAcrossFrames('.submit-btn');
+ * @module FrameManager
+ * @example
+ * const { FrameManager } = require('@wdio-framework/ui');
+ * const fm = new FrameManager();
+ *
+ * // Auto-find element across all frames
+ * const { element, framePath } = await fm.findElementAcrossFrames('.submit-btn');
+ *
+ * // Execute code within a specific frame
+ * const text = await fm.withinFrame('payment-frame', async () => {
+ *     return (await $('.total')).getText();
+ * });
+ *
+ * // Get frame count
+ * const count = await fm.getFrameCount();
  * ═══════════════════════════════════════════════════════════════════════
  */
 
 const { Logger } = require('@wdio-framework/core');
 
+/**
+ * Manages iframe switching and cross-frame element resolution.
+ *
+ * @class FrameManager
+ */
 class FrameManager {
     constructor({ maxDepth = 5 } = {}) {
         this.logger = Logger.getInstance('FrameManager');
@@ -131,6 +148,14 @@ class FrameManager {
 
     /**
      * Switch to a specific frame by index, name, id, or WDIO element.
+     *
+     * @param {number|string|WebdriverIO.Element} frameRef  Frame index, name/id string, or element
+     * @returns {Promise<void>}
+     * @throws {Error} If frame index is out of range or frame not found
+     *
+     * @example
+     * await fm.switchToFrame(0);               // by index
+     * await fm.switchToFrame('payment-frame');  // by name or id
      */
     async switchToFrame(frameRef) {
         if (typeof frameRef === 'number') {
@@ -156,6 +181,7 @@ class FrameManager {
 
     /**
      * Switch back to the main/default document content.
+     * @returns {Promise<void>}
      */
     async switchToDefaultContent() {
         try {
@@ -168,6 +194,7 @@ class FrameManager {
 
     /**
      * Switch to the parent frame (one level up).
+     * @returns {Promise<void>}
      */
     async switchToParentFrame() {
         await browser.switchToParentFrame();

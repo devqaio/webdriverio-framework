@@ -9,6 +9,7 @@ const { ScreenshotManager } = require('./ScreenshotManager');
 const { PerformanceTracker } = require('./PerformanceTracker');
 const { ReportBackupManager } = require('./ReportBackupManager');
 const { CustomDriverResolver } = require('./CustomDriverResolver');
+const { ConfigResolver } = require('./ConfigResolver');
 
 module.exports = {
     Logger,
@@ -18,4 +19,5 @@ module.exports = {
     PerformanceTracker,
     ReportBackupManager,
     CustomDriverResolver,
+    ConfigResolver,
 };
