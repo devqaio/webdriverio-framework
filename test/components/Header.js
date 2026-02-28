@@ -4,7 +4,7 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-const { BaseComponent } = require('../../src/core/BaseComponent');
+const { BaseComponent } = require('@wdio-framework/ui');
 
 class HeaderComponent extends BaseComponent {
     constructor() {

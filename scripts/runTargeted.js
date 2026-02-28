@@ -56,7 +56,7 @@ if (!matrixPath) {
 }
 
 // Load the filter
-const { TestExecutionFilter } = require('../src/helpers/TestExecutionFilter');
+const { TestExecutionFilter } = require('@wdio-framework/core');
 
 const filter = new TestExecutionFilter(matrixPath);
 filter.load();

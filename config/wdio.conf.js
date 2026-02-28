@@ -16,9 +16,7 @@ require('dotenv').config();
 const path = require('path');
 const fs = require('fs-extra');
 const { resolveCapabilities } = require('./capabilities');
-const { CustomReporter } = require('../src/utils/Reporter');
-const { Logger } = require('../src/utils/Logger');
-const { ReportBackupManager } = require('../src/utils/ReportBackupManager');
+const { CustomReporter, Logger, ReportBackupManager, CustomDriverResolver } = require('@wdio-framework/core');
 
 // Logger for main process (onPrepare, onComplete) — workers get their own context
 // Use a getter to always get the current instance (survives setWorkerContext rebuild)
@@ -138,7 +136,7 @@ exports.config = {
     /**
      * Runs once before all workers are launched.
      */
-    onPrepare: function (config, capabilities) {
+    onPrepare: async function (config, capabilities) {
         getLogger().info('════════════════════════════════════════════');
         getLogger().info(' Test Execution Starting');
         getLogger().info(`  Environment : ${process.env.TEST_ENV || 'dev'}`);
@@ -146,6 +144,22 @@ exports.config = {
         getLogger().info(`  Base URL    : ${config.baseUrl}`);
         getLogger().info(`  Parallel    : ${config.maxInstances} instance(s)`);
         getLogger().info('════════════════════════════════════════════');
+
+        // ─── Custom Driver Resolution (when DRIVER_HOST_URL is set) ───
+        if (process.env.DRIVER_HOST_URL && process.env.DRIVER_VERSION) {
+            try {
+                const driverOverrides = await CustomDriverResolver.resolveEdgeCapabilityOverrides();
+                // Merge the resolved driver path into each capability
+                for (const cap of capabilities) {
+                    const target = cap.capabilities || cap;
+                    Object.assign(target, driverOverrides);
+                }
+                getLogger().info('Custom driver resolved and applied to capabilities');
+            } catch (err) {
+                getLogger().error(`Custom driver resolution failed: ${err.message}`);
+                throw err;
+            }
+        }
 
         // Write Allure environment & categories
         CustomReporter.writeAllureEnvironment(ALLURE_RESULTS);

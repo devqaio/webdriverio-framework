@@ -4,7 +4,7 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-const { BaseComponent } = require('../../src/core/BaseComponent');
+const { BaseComponent } = require('@wdio-framework/ui');
 
 class ModalComponent extends BaseComponent {
     constructor(rootSelector = '[data-testid="modal"], .modal, .dialog, [role="dialog"]') {
@@ -62,4 +62,4 @@ class ModalComponent extends BaseComponent {
     }
 }
 
-module.exports = { ModalComponent };
+module.exports = new ModalComponent();

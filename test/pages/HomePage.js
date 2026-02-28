@@ -4,7 +4,7 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-const { BasePage } = require('../../src/core/BasePage');
+const { BasePage } = require('@wdio-framework/ui');
 
 class HomePage extends BasePage {
     get url() {

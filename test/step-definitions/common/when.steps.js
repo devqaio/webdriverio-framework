@@ -14,8 +14,8 @@ When(/^I click (?:on )?(?:the )?"([^"]*)"(?: button| link| element)?$/, async fu
     const selectors = [
         `[data-testid="${identifier}"]`,
         `#${identifier}`,
-        `button:contains("${identifier}")`,
-        `a:contains("${identifier}")`,
+        `//button[contains(.,"${identifier}")]`,
+        `//a[contains(.,"${identifier}")]`,
         `[aria-label="${identifier}"]`,
     ];
 

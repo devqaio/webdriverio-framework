@@ -97,6 +97,59 @@ This framework is a **baseline test automation platform** designed for enterpris
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
+### Modular Package Architecture
+
+The framework is split into **three independently publishable npm packages** under a monorepo structure. Application teams install only the packages they need:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  @wdio-framework/core                            │
+│  AbstractBasePage │ Logger │ RetryHandler │ ScreenshotManager   │
+│  ApiHelper │ DataGenerator │ ExcelHelper │ DataDrivenManager    │
+│  Timeouts │ Environments │ Messages │ createBaseHooks()         │
+├──────────────────────────┬──────────────────────────────────────┤
+│   @wdio-framework/ui    │      @wdio-framework/mobile          │
+│   (depends on core)     │      (depends on core)               │
+│                          │                                      │
+│   BasePage               │      MobileBasePage                  │
+│   BaseComponent          │      Gestures (tap, swipe, pinch…)   │
+│   BrowserManager         │      Context switching               │
+│   ElementHelper          │      App lifecycle (Appium 2.x)      │
+│   ShadowDomResolver      │      Platform-aware selectors        │
+│   FrameManager           │      Device utilities                │
+│   Web capabilities       │      Mobile capabilities             │
+└──────────────────────────┴──────────────────────────────────────┘
+```
+
+**Install for web-only testing:**
+```bash
+npm install @wdio-framework/ui
+# core is auto-installed as a dependency
+```
+
+**Install for mobile-only testing:**
+```bash
+npm install @wdio-framework/mobile
+# core is auto-installed as a dependency
+```
+
+**Install for both (hybrid):**
+```bash
+npm install @wdio-framework/ui @wdio-framework/mobile
+```
+
+**Import examples:**
+```javascript
+// Web page object
+const { BasePage, BrowserManager, Logger } = require('@wdio-framework/ui');
+
+// Mobile page object
+const { MobileBasePage, Logger } = require('@wdio-framework/mobile');
+
+// Core utilities only
+const { ApiHelper, DataGenerator, Timeouts } = require('@wdio-framework/core');
+```
+
 ### Design Principles
 
 1. **Single Responsibility** — Each module does one thing well
@@ -202,6 +255,45 @@ npm run report:html
 
 ```
 WebDriverIO/
+├── packages/                        # Modular npm packages (monorepo)
+│   ├── core/                        # @wdio-framework/core
+│   │   ├── package.json             # Core package manifest
+│   │   ├── index.js                 # Barrel export (all core modules)
+│   │   ├── README.md                # Core package documentation
+│   │   └── src/
+│   │       ├── base/
+│   │       │   └── AbstractBasePage.js  # Shared base (navigation, interaction, waits)
+│   │       ├── utils/               # Logger, RetryHandler, Reporter, etc.
+│   │       ├── helpers/             # ApiHelper, ExcelHelper, DataDrivenManager, etc.
+│   │       ├── constants/           # Timeouts, Environments, Messages
+│   │       └── config/
+│   │           └── base.hooks.js    # Reusable WDIO lifecycle hook factory
+│   │
+│   ├── ui/                          # @wdio-framework/ui
+│   │   ├── package.json             # UI package manifest (depends on core)
+│   │   ├── index.js                 # Barrel export (core + UI modules)
+│   │   ├── README.md                # UI package documentation
+│   │   └── src/
+│   │       ├── BasePage.js          # Web page object (60+ methods, Shadow DOM, Frames)
+│   │       ├── BaseComponent.js     # Reusable UI component base
+│   │       ├── BrowserManager.js    # Browser-level operations
+│   │       ├── ElementHelper.js     # Element interaction utilities
+│   │       ├── ShadowDomResolver.js # Automatic shadow DOM traversal
+│   │       ├── FrameManager.js      # Automatic iframe handling
+│   │       └── config/
+│   │           ├── capabilities/    # Chrome, Firefox, Edge configs
+│   │           └── wdio.web.conf.js # Ready-to-use web config template
+│   │
+│   └── mobile/                      # @wdio-framework/mobile
+│       ├── package.json             # Mobile package manifest (depends on core)
+│       ├── index.js                 # Barrel export (core + mobile modules)
+│       ├── README.md                # Mobile package documentation
+│       └── src/
+│           ├── MobileBasePage.js    # Mobile page object (gestures, contexts, Appium 2.x)
+│           └── config/
+│               ├── capabilities/    # Android, iOS configs
+│               └── wdio.mobile.conf.js # Ready-to-use mobile config template
+│
 ├── config/                          # Framework configuration
 │   ├── wdio.conf.js                 # Base WDIO configuration
 │   ├── wdio.dev.js                  # Development environment override
@@ -239,7 +331,7 @@ WebDriverIO/
 │   │   ├── ApiHelper.js             # REST API client (Axios)
 │   │   ├── DataGenerator.js         # Fake data factory (Faker.js)
 │   │   ├── FileHelper.js            # File system operations
-│   │   ├── DateHelper.js            # Date manipulation (Moment.js)
+│   │   ├── DateHelper.js            # Date manipulation (dayjs)
 │   │   ├── StringHelper.js          # String utilities
 │   │   ├── EncryptionHelper.js      # AES-256 encryption
 │   │   └── index.js                 # Helpers barrel export
@@ -463,7 +555,7 @@ LOG_LEVEL=debug
 Integration in custom hooks:
 
 ```javascript
-const { Logger } = require('./src/utils/Logger');
+const { Logger } = require('@wdio-framework/core');
 
 // Worker context is set automatically in wdio.conf.js `before` hook
 // Scenario context is set/cleared automatically in beforeScenario/afterScenario
@@ -484,7 +576,7 @@ The framework supports both **JSON** and **Excel** as external data sources. Tes
 Place JSON files in `test/data/` and load them in step definitions:
 
 ```javascript
-const { dataDrivenManager } = require('../../src');
+const { dataDrivenManager } = require('@wdio-framework/core');
 
 // Load a single JSON file
 dataDrivenManager.loadJson('test/data/users.json');
@@ -511,7 +603,7 @@ Place `.xlsx` files in `test/data/` with headers in row 1:
 | TC003 | locked_user | locked_pass | N | @regression |
 
 ```javascript
-const { ExcelHelper } = require('../../src');
+const { ExcelHelper } = require('@wdio-framework/core');
 
 // Read all rows as objects (header row becomes keys)
 const allRows = ExcelHelper.readSheet('test/data/testData.xlsx', 'LoginTests');
@@ -541,7 +633,7 @@ ExcelHelper.writeToExcel('test/data/results.xlsx', 'Results', results);
 The `DataDrivenManager` merges JSON, Excel, and environment variable data into a single queryable store:
 
 ```javascript
-const { dataDrivenManager } = require('../../src');
+const { dataDrivenManager } = require('@wdio-framework/core');
 
 // Load multiple sources
 dataDrivenManager.loadJson('test/data/users.json');
@@ -614,7 +706,7 @@ Feature: Login Tests
 ```
 
 ```javascript
-const { FeatureGenerator } = require('../../src');
+const { FeatureGenerator } = require('@wdio-framework/core');
 
 await FeatureGenerator.generateFromTemplate(
     'test/features/templates/login.template.feature',
@@ -668,7 +760,7 @@ npm run test:targeted -- --matrix test/data/execution-matrix.json --env staging 
 ### Programmatic Usage
 
 ```javascript
-const { TestExecutionFilter } = require('../../src');
+const { TestExecutionFilter } = require('@wdio-framework/core');
 
 const filter = new TestExecutionFilter();
 filter.load('test/data/execution-matrix.json');
@@ -688,7 +780,7 @@ const overrides = filter.toWdioConfig({ env: 'staging', browser: 'chrome' });
 ### Creating a Page Object
 
 ```javascript
-const { BasePage } = require('../../src');
+const { BasePage } = require('@wdio-framework/ui');
 
 class MyPage extends BasePage {
     // Define the page URL (used by open())
@@ -724,7 +816,7 @@ module.exports = new MyPage();
 ### Creating a Component
 
 ```javascript
-const { BaseComponent } = require('../../src');
+const { BaseComponent } = require('@wdio-framework/ui');
 
 class NavBar extends BaseComponent {
     constructor() {
@@ -837,7 +929,7 @@ appium
 ### Creating Mobile Page Objects
 
 ```javascript
-const { MobileBasePage } = require('../../src');
+const { MobileBasePage } = require('@wdio-framework/mobile');
 
 class LoginScreen extends MobileBasePage {
     get usernameInput() { return this.byAccessibilityId('username-input'); }
@@ -1012,7 +1104,7 @@ The `docker-compose.yml` orchestrates:
 
 ### Environment Configuration
 
-Environments are defined in `src/constants/Environments.js`:
+Environments are defined in `packages/core/src/constants/Environments.js`:
 
 ```javascript
 const envConfig = {
@@ -1037,7 +1129,7 @@ npm run test:staging
 ### Logger
 
 ```javascript
-const { Logger } = require('../../src');
+const { Logger } = require('@wdio-framework/core');
 const logger = Logger.getInstance('MyModule');
 logger.info('Test started');
 logger.debug('Element found', { selector: '#login' });
@@ -1047,7 +1139,7 @@ logger.error('Login failed', { error: err.message });
 ### Data Generator
 
 ```javascript
-const { DataGenerator } = require('../../src');
+const { DataGenerator } = require('@wdio-framework/core');
 const user = DataGenerator.generateUser();       // { firstName, lastName, email, phone, ... }
 const address = DataGenerator.generateAddress();  // { street, city, state, zip, country }
 const card = DataGenerator.generateCreditCard();  // { number, expiry, cvv }
@@ -1056,7 +1148,7 @@ const card = DataGenerator.generateCreditCard();  // { number, expiry, cvv }
 ### API Helper
 
 ```javascript
-const { ApiHelper } = require('../../src');
+const { ApiHelper } = require('@wdio-framework/core');
 const api = new ApiHelper('https://api.example.com');
 const response = await api.get('/users/1');
 await api.post('/users', { name: 'Test User' });
@@ -1067,7 +1159,7 @@ await api.delete('/users/1');
 ### Encryption Helper
 
 ```javascript
-const { EncryptionHelper } = require('../../src');
+const { EncryptionHelper } = require('@wdio-framework/core');
 const encrypted = EncryptionHelper.encrypt('my-secret-password');
 const decrypted = EncryptionHelper.decrypt(encrypted);
 ```
@@ -1075,7 +1167,7 @@ const decrypted = EncryptionHelper.decrypt(encrypted);
 ### Retry Handler
 
 ```javascript
-const { RetryHandler } = require('../../src');
+const { RetryHandler } = require('@wdio-framework/core');
 const result = await RetryHandler.retry(async () => {
     return await someUnstableOperation();
 }, { maxRetries: 3, delay: 1000, exponential: true });
@@ -1084,7 +1176,7 @@ const result = await RetryHandler.retry(async () => {
 ### Performance Tracker
 
 ```javascript
-const { PerformanceTracker } = require('../../src');
+const { PerformanceTracker } = require('@wdio-framework/core');
 const tracker = new PerformanceTracker();
 tracker.start('login-flow');
 // ... perform login ...
@@ -1112,10 +1204,10 @@ tracker.assertDuration('login-flow', 5000); // Fail if > 5s
 
 ### Adding a New Helper Module
 
-1. Create `src/helpers/MyHelper.js`
+1. Create `packages/core/src/helpers/MyHelper.js`
 2. Export the class or singleton
-3. Add to `src/helpers/index.js` barrel
-4. Now importable via `const { MyHelper } = require('./src')`
+3. Add to `packages/core/index.js` barrel
+4. Now importable via `const { MyHelper } = require('@wdio-framework/core')`
 
 ### Adding a New Capability
 
@@ -1158,26 +1250,27 @@ tracker.assertDuration('login-flow', 5000); // Fail if > 5s
 All modules are available from a single import point:
 
 ```javascript
+// UI (also re-exports all core modules)
 const {
-    // Core
-    BasePage, BaseComponent, MobileBasePage,
+    BasePage, BaseComponent,
     BrowserManager, ElementHelper,
     ShadowDomResolver, FrameManager,
+} = require('@wdio-framework/ui');
 
-    // Helpers
+// Mobile
+const { MobileBasePage } = require('@wdio-framework/mobile');
+
+// Core (helpers, utils, constants)
+const {
     ExcelHelper, DataDrivenManager, dataDrivenManager,
     FeatureGenerator, TestExecutionFilter,
     ApiHelper, DataGenerator, FileHelper,
     DateHelper, StringHelper, EncryptionHelper,
-
-    // Utils
     Logger, CustomReporter, RetryHandler,
     ScreenshotManager, PerformanceTracker,
     ReportBackupManager,
-
-    // Constants
     Timeouts, Environments, Messages,
-} = require('./src');
+} = require('@wdio-framework/core');
 ```
 
 ---

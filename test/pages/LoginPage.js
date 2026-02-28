@@ -7,7 +7,7 @@
  * Replace selectors with those from your actual application.
  */
 
-const { BasePage } = require('../../src/core/BasePage');
+const { BasePage } = require('@wdio-framework/ui');
 
 class LoginPage extends BasePage {
     /** @override – relative URL used by this.open() */

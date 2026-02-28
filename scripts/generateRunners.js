@@ -13,7 +13,7 @@
  */
 
 const path = require('path');
-const { FeatureGenerator } = require('../src/helpers/FeatureGenerator');
+const { FeatureGenerator } = require('@wdio-framework/core');
 
 const args = process.argv.slice(2);
 const tagsArg = args.find((a) => a.startsWith('--tags'));

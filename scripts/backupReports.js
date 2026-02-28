@@ -9,7 +9,7 @@
  *   REPORT_BACKUP_PATH=\\server\share node scripts/backupReports.js
  */
 
-const { ReportBackupManager } = require('../src/utils/ReportBackupManager');
+const { ReportBackupManager } = require('@wdio-framework/core');
 
 (async () => {
     console.log('═══════════════════════════════════════════════');

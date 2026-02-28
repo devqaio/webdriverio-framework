@@ -1,0 +1,53 @@
+{
+  "name": "@wdio-framework/core",
+  "version": "1.0.0",
+  "description": "Core utilities, helpers, constants, and base page object for the WebdriverIO Cucumber framework",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "keywords": [
+    "webdriverio",
+    "cucumber",
+    "bdd",
+    "test-automation",
+    "page-object",
+    "core"
+  ],
+  "author": "Enterprise QA Platform Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "winston": "^3.12.0",
+    "fs-extra": "^11.2.0",
+    "dotenv": "^16.4.0",
+    "axios": "^1.7.0",
+    "dayjs": "^1.11.0",
+    "lodash": "^4.17.21",
+    "uuid": "^9.0.0",
+    "form-data": "^4.0.0",
+    "yaml": "^2.4.0"
+  },
+  "optionalDependencies": {
+    "xlsx": "^0.18.5",
+    "archiver": "^7.0.0",
+    "@faker-js/faker": "^8.4.0",
+    "wdio-cucumberjs-json-reporter": "^5.0.0",
+    "multiple-cucumber-html-reporter": "^3.6.0"
+  },
+  "peerDependencies": {
+    "webdriverio": "^9.0.0"
+  },
+  "peerDependenciesMeta": {
+    "webdriverio": {
+      "optional": true
+    }
+  },
+  "files": [
+    "index.js",
+    "src/**"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

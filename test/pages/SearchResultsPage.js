@@ -4,7 +4,7 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-const { BasePage } = require('../../src/core/BasePage');
+const { BasePage } = require('@wdio-framework/ui');
 
 class SearchResultsPage extends BasePage {
     get url() {
@@ -94,7 +94,8 @@ class SearchResultsPage extends BasePage {
         // Wait for either results or no-results message
         await browser.waitUntil(
             async () => {
-                const hasResults = await this.isDisplayed(this.searchResults[0]);
+                const results = await this.searchResults;
+                const hasResults = results.length > 0 && await results[0].isDisplayed().catch(() => false);
                 const hasNoResults = await this.isDisplayed(this.noResultsMessage);
                 return hasResults || hasNoResults;
             },

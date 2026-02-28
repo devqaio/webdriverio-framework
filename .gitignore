@@ -35,6 +35,9 @@ dist/
 build/
 *.tgz
 
+# Driver Cache
+.cache/
+
 # Temp
 tmp/
 temp/

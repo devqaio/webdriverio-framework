@@ -1,5 +1,5 @@
 {
-  "_note": "Environment URLs are managed in src/constants/Environments.js — do not duplicate here",
+  "_note": "Environment URLs are managed in packages/core/src/constants/Environments.js — do not duplicate here",
   "searchQueries": [
     "automation testing",
     "webdriverio",

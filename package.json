@@ -15,6 +15,9 @@
   ],
   "author": "Enterprise QA Platform Team",
   "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
@@ -81,6 +84,7 @@
     "appium-uiautomator2-driver": "^3.0.0",
     "appium-xcuitest-driver": "^7.0.0",
     "archiver": "^7.0.0",
+    "adm-zip": "^0.5.10",
     "axios": "^1.7.0",
     "chai": "^4.4.0",
     "cross-env": "^7.0.3",
@@ -92,7 +96,7 @@
     "form-data": "^4.0.0",
     "fs-extra": "^11.2.0",
     "lodash": "^4.17.21",
-    "moment": "^2.30.0",
+    "dayjs": "^1.11.0",
     "prettier": "^3.2.0",
     "rimraf": "^5.0.0",
     "uuid": "^9.0.0",

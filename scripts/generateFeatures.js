@@ -16,7 +16,7 @@
 
 const path = require('path');
 const fs = require('fs-extra');
-const { FeatureGenerator } = require('../src/helpers/FeatureGenerator');
+const { FeatureGenerator } = require('@wdio-framework/core');
 
 const ROOT = process.cwd();
 const CONFIG_PATH = path.join(ROOT, 'test', 'data', 'feature-config.json');

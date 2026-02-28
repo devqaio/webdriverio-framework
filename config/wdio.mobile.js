@@ -54,7 +54,7 @@ exports.config = deepMerge(baseConfig, {
     // ─── No window maximize on mobile ─────────────────────────
     before: async function (capabilities, specs) {
         // Skip maximize for native apps
-        const { Logger } = require('../src/utils/Logger');
+        const { Logger } = require('@wdio-framework/core');
         const logger = Logger.getInstance('MobileConfig');
         logger.info('Mobile session initialised');
     },

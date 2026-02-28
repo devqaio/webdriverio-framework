@@ -440,7 +440,7 @@ npm run report:allure</code></pre>
 
 <h3>Creating a Page Object</h3>
 <div class="code-header">test/pages/LoginPage.js</div>
-<pre><code>const { BasePage } = require('../../src');
+<pre><code>const { BasePage } = require('@wdio-framework/ui');
 
 class LoginPage extends BasePage {
     // URL path (used by open())
@@ -566,7 +566,7 @@ Then('I should see error {string}', async (message) =&gt; {
 <p>For reusable UI elements (headers, modals, menus) that appear across multiple pages, use <code>BaseComponent</code>:</p>
 
 <div class="code-header">test/components/Header.js</div>
-<pre><code>const { BaseComponent } = require('../../src');
+<pre><code>const { BaseComponent } = require('@wdio-framework/ui');
 
 class Header extends BaseComponent {
     constructor() {
@@ -665,7 +665,7 @@ this.autoResolveFrames = false;</code></pre>
 }</code></pre>
 
 <div class="code-header">Usage in Step Definition</div>
-<pre><code>const { dataDrivenManager } = require('../../src');
+<pre><code>const { dataDrivenManager } = require('@wdio-framework/core');
 
 // Load data
 dataDrivenManager.loadJson('test/data/users.json');
@@ -691,7 +691,7 @@ const msg = dataDrivenManager.interpolate('Hello {{validUsers.admin.username}}!'
 </table>
 
 <div class="code-header">ExcelHelper Usage</div>
-<pre><code>const { ExcelHelper } = require('../../src');
+<pre><code>const { ExcelHelper } = require('@wdio-framework/core');
 
 // Read all rows
 const all = ExcelHelper.readSheet('test/data/testData.xlsx', 'LoginTests');
@@ -807,7 +807,7 @@ appium</code></pre>
 
 <h3>Mobile Page Objects</h3>
 <div class="code-header">test/pages/mobile/LoginScreen.js</div>
-<pre><code>const { MobileBasePage } = require('../../src');
+<pre><code>const { MobileBasePage } = require('@wdio-framework/mobile');
 
 class LoginScreen extends MobileBasePage {
     get usernameInput() { return this.byAccessibilityId('username-input'); }
@@ -1022,7 +1022,7 @@ npm run docker:down</code></pre>
 <!-- ================================================================ -->
 <h2 id="logger">21. Logger</h2>
 
-<pre><code>const { Logger } = require('../../src');
+<pre><code>const { Logger } = require('@wdio-framework/core');
 const logger = Logger.getInstance('MyModule');
 
 logger.info('Test started');
@@ -1035,7 +1035,7 @@ logger.error('Login failed', { error: err.message });</code></pre>
 <!-- ================================================================ -->
 <h2 id="api-helper">22. API Helper</h2>
 
-<pre><code>const { ApiHelper } = require('../../src');
+<pre><code>const { ApiHelper } = require('@wdio-framework/core');
 const api = new ApiHelper('https://api.example.com');
 
 // CRUD operations
@@ -1051,7 +1051,7 @@ const response = await api.get('/protected-resource');</code></pre>
 <!-- ================================================================ -->
 <h2 id="data-generator">23. Data Generator</h2>
 
-<pre><code>const { DataGenerator } = require('../../src');
+<pre><code>const { DataGenerator } = require('@wdio-framework/core');
 
 const user = DataGenerator.generateUser();
 // { firstName, lastName, email, phone, address, ... }
@@ -1068,7 +1068,7 @@ const card = DataGenerator.generateCreditCard();
 <details>
     <summary>EncryptionHelper — AES-256 encryption for credentials</summary>
     <div class="details-body">
-<pre><code>const { EncryptionHelper } = require('../../src');
+<pre><code>const { EncryptionHelper } = require('@wdio-framework/core');
 const encrypted = EncryptionHelper.encrypt('my-secret');
 const decrypted = EncryptionHelper.decrypt(encrypted);</code></pre>
     </div>
@@ -1076,7 +1076,7 @@ const decrypted = EncryptionHelper.decrypt(encrypted);</code></pre>
 <details>
     <summary>FileHelper — File system operations</summary>
     <div class="details-body">
-<pre><code>const { FileHelper } = require('../../src');
+<pre><code>const { FileHelper } = require('@wdio-framework/core');
 FileHelper.writeJson('output.json', data);
 const content = FileHelper.readJson('input.json');
 FileHelper.ensureDir('path/to/dir');</code></pre>
@@ -1085,7 +1085,7 @@ FileHelper.ensureDir('path/to/dir');</code></pre>
 <details>
     <summary>DateHelper — Date manipulation (Moment.js)</summary>
     <div class="details-body">
-<pre><code>const { DateHelper } = require('../../src');
+<pre><code>const { DateHelper } = require('@wdio-framework/core');
 const today = DateHelper.today('YYYY-MM-DD');
 const future = DateHelper.addDays(7, 'YYYY-MM-DD');</code></pre>
     </div>
@@ -1093,7 +1093,7 @@ const future = DateHelper.addDays(7, 'YYYY-MM-DD');</code></pre>
 <details>
     <summary>StringHelper — String utilities</summary>
     <div class="details-body">
-<pre><code>const { StringHelper } = require('../../src');
+<pre><code>const { StringHelper } = require('@wdio-framework/core');
 StringHelper.toCamelCase('hello world');   // 'helloWorld'
 StringHelper.generateRandom(10);           // Random 10-char string
 StringHelper.truncate('long text...', 5);  // 'long ...'</code></pre>
@@ -1102,7 +1102,7 @@ StringHelper.truncate('long text...', 5);  // 'long ...'</code></pre>
 <details>
     <summary>RetryHandler — Retry with exponential backoff</summary>
     <div class="details-body">
-<pre><code>const { RetryHandler } = require('../../src');
+<pre><code>const { RetryHandler } = require('@wdio-framework/core');
 const result = await RetryHandler.retry(async () =&gt; {
     return await unstableOperation();
 }, { maxRetries: 3, delay: 1000, backoff: 2 });</code></pre>
@@ -1111,7 +1111,7 @@ const result = await RetryHandler.retry(async () =&gt; {
 <details>
     <summary>PerformanceTracker — Timing &amp; assertions</summary>
     <div class="details-body">
-<pre><code>const { PerformanceTracker } = require('../../src');
+<pre><code>const { PerformanceTracker } = require('@wdio-framework/core');
 const tracker = new PerformanceTracker();
 tracker.start('login');
 // ... perform actions ...
@@ -1163,12 +1163,18 @@ tracker.assertDuration('login', 5000); // Fail if &gt; 5 seconds</code></pre>
 
 <p>Every module is importable from a single entry point:</p>
 
-<pre><code>const {
-    // Core
-    BasePage, BaseComponent, MobileBasePage,
+<pre><code>// UI package
+const {
+    BasePage, BaseComponent,
     BrowserManager, ElementHelper,
     ShadowDomResolver, FrameManager,
+} = require('@wdio-framework/ui');
 
+// Mobile package
+const { MobileBasePage } = require('@wdio-framework/mobile');
+
+// Core package
+const {
     // Helpers
     ExcelHelper, DataDrivenManager, dataDrivenManager,
     FeatureGenerator, TestExecutionFilter,
@@ -1182,7 +1188,7 @@ tracker.assertDuration('login', 5000); // Fail if &gt; 5 seconds</code></pre>
 
     // Constants
     Timeouts, Environments, Messages,
-} = require('./src');</code></pre>
+} = require('@wdio-framework/core');</code></pre>
 
 <!-- ================================================================ -->
 <h2 id="troubleshooting">27. Troubleshooting</h2>
@@ -1215,10 +1221,10 @@ tracker.assertDuration('login', 5000); // Fail if &gt; 5 seconds</code></pre>
 
 <h3>Add a New Helper Module</h3>
 <div class="step-list">
-    <div class="step-item">Create <code>src/helpers/MyHelper.js</code></div>
+    <div class="step-item">Create <code>packages/core/src/helpers/MyHelper.js</code></div>
     <div class="step-item">Export the class</div>
-    <div class="step-item">Add to <code>src/helpers/index.js</code> barrel</div>
-    <div class="step-item">Import via <code>const { MyHelper } = require('./src')</code></div>
+    <div class="step-item">Add to <code>packages/core/index.js</code> barrel</div>
+    <div class="step-item">Import via <code>const { MyHelper } = require('@wdio-framework/core')</code></div>
 </div>
 
 <h3>Add a New Capability</h3>
