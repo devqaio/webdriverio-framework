@@ -4,11 +4,20 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-const { getChromeCapabilities } = require('./chrome');
-const { getFirefoxCapabilities } = require('./firefox');
-const { getEdgeCapabilities } = require('./edge');
-const { getAndroidCapabilities, getAndroidChromeCapabilities } = require('./android');
-const { getIOSCapabilities, getIOSSafariCapabilities } = require('./ios');
+// ─── Web (Chrome, Firefox, Edge) — sourced from @wdio-framework/ui ────
+const {
+    getChromeCapabilities,
+    getFirefoxCapabilities,
+    getEdgeCapabilities,
+} = require('@wdio-framework/ui');
+
+// ─── Mobile (Android, iOS) — sourced from @wdio-framework/mobile ──────
+const {
+    getAndroidCapabilities,
+    getAndroidChromeCapabilities,
+    getIOSCapabilities,
+    getIOSSafariCapabilities,
+} = require('@wdio-framework/mobile');
 
 // ─── Cloud Provider Capabilities ──────────────────────────────
 const {

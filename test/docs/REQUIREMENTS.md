@@ -195,6 +195,7 @@ Provide a **single, production-ready test automation framework** that enterprise
 | **PKG-04** | Type declarations (TypeScript `.d.ts`, Java interfaces, Python stubs) SHALL be provided for IDE auto-completion. | Should |
 | **PKG-05** | Core SHALL export **all** helpers, utilities, constants, and the abstract base page. | Must |
 | **PKG-06** | Each package SHALL declare a semantic version following SemVer 2.0. | Must |
+| **PKG-07** | The root repository SHALL provide a backward-compatible re-export entry point (`src/index.js`) that re-exports all symbols from the Core, UI, and Mobile packages, preserving compatibility for existing test code that imports from the package root rather than from individual sub-packages. | Should |
 
 ---
 
@@ -648,6 +649,7 @@ The Abstract Base Page is the **root class** for every page/screen object. It is
 | **WCF-05** | Reporters SHALL include at least `spec` and `allure`. | Must |
 | **WCF-06** | The BDD framework SHALL be Cucumber with configurable `timeout`, `retry`, and `tagExpression`. | Must |
 | **WCF-07** | SHALL provide a `services` array placeholder for extensibility. | Should |
+| **WCF-08** | SHALL provide environment-specific WDIO runner config overrides for each supported environment (`wdio.dev.js`, `wdio.staging.js`, `wdio.prod.js`, `wdio.docker.js`) that import the base `wdio.conf.js` and deep-merge environment-appropriate settings (base URL, log level, tag expression, capabilities, Selenium Grid connection). | Should |
 
 ---
 
@@ -733,6 +735,7 @@ The Abstract Base Page is the **root class** for every page/screen object. It is
 | **BDD-04** | SHALL support `@tag`-based filtering via `TAG_EXPRESSION` env var or CLI argument. | Must |
 | **BDD-05** | SHALL support step-level retry and spec-file-level retry (both configurable). | Should |
 | **BDD-06** | Scenario timeout SHALL be configurable (default ≥ 120 s for web, ≥ 180 s for mobile). | Must |
+| **BDD-07** | The reference test project SHALL follow a standard directory layout: `test/features/` (Gherkin feature files), `test/step-definitions/` (step definition modules), `test/pages/` (page object classes extending the framework base pages), `test/components/` (reusable UI component wrappers), and `test/data/` (fixture files, user data, execution matrices, and feature-config files). | Should |
 
 ---
 
@@ -756,7 +759,11 @@ The Abstract Base Page is the **root class** for every page/screen object. It is
 | **CI-02** | SHALL provide a Docker Compose setup with Selenium Grid (hub + Chrome/Firefox/Edge nodes). | Should |
 | **CI-03** | Docker configuration SHALL be driven entirely by environment variables. | Must (if Docker supported) |
 | **CI-04** | SHALL provide npm scripts (or equivalent) for: `test`, `test:<env>`, `test:<browser>`, `test:headless`, `test:parallel`, `test:mobile`, `test:smoke`, `test:regression`, `report:generate`, `report:allure`, `clean`, `lint`, `format`, `docker:build`, `docker:run`. | Should |
-| **CI-05** | SHALL provide a health-check script that validates connectivity to the application and Selenium Grid. | Should |
+| **CI-05** | SHALL provide a `health-check` script (`npm run health-check`) that validates framework readiness: Node.js runtime version (≥ 18), presence of critical npm dependencies (`@wdio/cli`, `webdriverio`, `@wdio/allure-reporter`, etc.), existence of `wdio.conf.js`, discoverability of at least one `.feature` file, and presence of a `.env` file — reporting pass/fail for each check and exiting with a non-zero code if any critical check fails. | Should |
+| **CI-06** | SHALL provide a `setup` script (`npm run setup`) that creates all required output directories (`reports/allure-results`, `reports/cucumber-json`, `reports/cucumber-html`, `reports/timeline`, `screenshots/`, `videos/`, `logs/`, `downloads/`, `tmp/`) and copies `.env.example` to `.env` if the latter is absent, so a fresh checkout is runnable after a single command. | Should |
+| **CI-07** | A `postinstall` npm lifecycle hook SHALL execute automatically after `npm install` to create required output directories and bootstrap `.env` from `.env.example` if not present, ensuring the project is immediately operational without manual setup steps. | Should |
+| **CI-08** | SHALL provide npm scripts for the full test lifecycle beyond CI-04: `test:cloud`, `test:docker`, `test:targeted`, `test:sanity`, `test:rerun` (runs scenarios tagged `@failed`), `test:tags`, `generate:features`, `generate:runners`, `report:timeline`, `report:html`, `report:open`, `report:backup`, `format:check`, `validate` (lint + format:check), `docs:generate`, `docs:open`, `docs:clean`, `docker:down`, `setup`, `clean:reports`. | Should |
+| **CI-09** | A `clean:reports` script SHALL remove all generated content under `reports/`, `screenshots/`, `videos/`, and `logs/` without deleting the directories, enabling clean re-runs after a failed suite. | Should |
 
 ---
 
@@ -1151,7 +1158,7 @@ This matrix maps each requirement ID to the implementation module in the current
 | Req ID Range | Module | Source File(s) |
 |-------------|--------|---------------|
 | ARCH-01 – ARCH-10 | Root workspace | `package.json`, `.env.example` |
-| PKG-01 – PKG-06 | All packages | `packages/*/package.json`, `packages/*/index.js` |
+| PKG-01 – PKG-07 | All packages | `packages/*/package.json`, `packages/*/index.js`, `src/index.js` |
 | BP-01 – BP-25 | Core | `packages/core/src/base/AbstractBasePage.js` |
 | LOG-01 – LOG-10 | Core | `packages/core/src/utils/Logger.js` |
 | RET-01 – RET-07 | Core | `packages/core/src/utils/RetryHandler.js` |
@@ -1180,14 +1187,14 @@ This matrix maps each requirement ID to the implementation module in the current
 | SDR-01 – SDR-07 | UI | `packages/ui/src/ShadowDomResolver.js` |
 | FRM-01 – FRM-07 | UI | `packages/ui/src/FrameManager.js` |
 | CAP-01 – CAP-06 | UI | `packages/ui/src/config/capabilities/*.js` |
-| WCF-01 – WCF-07 | UI | `packages/ui/src/config/wdio.web.conf.js` |
+| WCF-01 – WCF-08 | UI / Config | `packages/ui/src/config/wdio.web.conf.js`, `config/wdio.conf.js`, `config/wdio.dev.js`, `config/wdio.staging.js`, `config/wdio.prod.js`, `config/wdio.docker.js` |
 | MBP-01 – MBP-21 | Mobile | `packages/mobile/src/MobileBasePage.js` |
 | MCF-01 – MCF-05 | Mobile | `packages/mobile/src/config/capabilities/*.js` |
 | MCG-01 – MCG-05 | Mobile | `packages/mobile/src/config/wdio.mobile.conf.js` |
 | HKF-01 – HKF-11 | Core | `packages/core/src/config/base.hooks.js` |
-| BDD-01 – BDD-06 | Root | `test/features/**`, `test/step-definitions/**` |
+| BDD-01 – BDD-07 | Root | `test/features/**`, `test/step-definitions/**`, `test/pages/**`, `test/components/**`, `test/data/**` |
 | CFG-01 – CFG-05 | Root | `.env.example`, `config/`, `config/helpers/configHelper.js` |
-| CI-01 – CI-05 | Root | `.github/`, `docker/`, `scripts/`, `package.json` |
+| CI-01 – CI-09 | Root | `.github/`, `docker/`, `scripts/`, `package.json`, `scripts/setup.js`, `scripts/cleanup.js`, `scripts/postInstall.js`, `scripts/healthCheck.js` |
 | DOC-01 – DOC-10 | Root | `jsdoc.config.json`, `package.json`, `docs/api/` |
 | XCT-01 – XCT-08 | All | Cross-cutting, enforced across all packages |
 | NFR-01 – NFR-09 | All | Non-functional, verified via testing and review |
