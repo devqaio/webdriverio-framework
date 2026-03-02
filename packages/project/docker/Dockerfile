@@ -30,8 +30,12 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy package files first (better caching)
+# Copy workspace root and all packages' package.json files first (better caching)
 COPY package.json package-lock.json* ./
+COPY packages/core/package.json ./packages/core/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/mobile/package.json ./packages/mobile/
+COPY packages/project/package.json ./packages/project/
 
 # Install dependencies
 RUN npm ci --production=false
@@ -40,12 +44,12 @@ RUN npm ci --production=false
 COPY . .
 
 # Create output directories
-RUN mkdir -p reports screenshots videos logs downloads
+RUN mkdir -p packages/project/reports packages/project/screenshots packages/project/videos packages/project/logs packages/project/downloads
 
 # Set environment variables for headless execution
 ENV HEADLESS=true
 ENV BROWSER=chrome
 ENV NODE_ENV=test
 
-# Default command
-CMD ["npm", "test"]
+# Default command (runs the project test via workspace)
+CMD ["npm", "run", "test", "--workspace=packages/project"]

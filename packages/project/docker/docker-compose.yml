@@ -73,8 +73,8 @@ services:
   # ─── Test Runner ─────────────────────────────────────────
   test-runner:
     build:
-      context: ..
-      dockerfile: docker/Dockerfile
+      context: ../../..
+      dockerfile: packages/project/docker/Dockerfile
     container_name: test-runner
     depends_on:
       - selenium-hub
@@ -89,10 +89,10 @@ services:
       - TEST_ENV=${TEST_ENV:-dev}
       - TAG_EXPRESSION=${TAG_EXPRESSION:-}
     volumes:
-      - ../reports:/app/reports
-      - ../screenshots:/app/screenshots
-      - ../logs:/app/logs
-    command: npx wdio run config/wdio.docker.js
+      - ../reports:/app/packages/project/reports
+      - ../screenshots:/app/packages/project/screenshots
+      - ../logs:/app/packages/project/logs
+    command: npm run test --workspace=packages/project
     networks:
       - test-grid
 
